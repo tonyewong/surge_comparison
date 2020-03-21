@@ -1,3 +1,8 @@
+# Other
+*.nc
+/output/*
+*DS_Store
+
 # History files
 .Rhistory
 .Rapp.history
