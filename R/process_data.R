@@ -9,8 +9,6 @@
 ##==============================================================================
 
 
-library(date)
-
 
 ##==============================================================================
 ## read in the raw tide gauge information, for the sites that will be the focus
@@ -49,6 +47,10 @@ for (dd in 1:length(files.tg)) {
   if (num_years < min_years) idx_drop <- c(idx_drop, dd)
 }
 for (ii in rev(idx_drop)) {data_gev[[ii]] <- NULL}
+
+## remove the stations that we won't use to avoid wasting time processing
+## the GPD data set for them
+files.tg <- files.tg[-idx_drop]
 
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename.gev <- paste('../input_data/processeddata_gev_',today,'.rds', sep='')
