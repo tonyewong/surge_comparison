@@ -8,3 +8,10 @@
   1. likelihood_gev.R
   1. parameter_setup_gev.R
   1. yields `optim_[covariate name]-gev-[date].rds`, output from maximum likelihood optimization for GEV parameters in each of the 8 potentially nonstationary models.
+
+
+## Input data
+
+### Tide gauge stations
+
+* Only take stations with at least 15 years of available data

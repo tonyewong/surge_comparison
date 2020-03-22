@@ -14,7 +14,7 @@ library(ncdf4)
 
 # check the GEV data sets (annual block maxima) to see what years we need the
 # covariates in for calibration
-data_gev <- readRDS('../input_data/processeddata_gev_03Nov2019.rds')
+data_gev <- readRDS('../input_data/processeddata_gev_22Mar2020.rds')
 first_year <- rep(NA, length(data_gev))
 last_year <- rep(NA, length(data_gev))
 for (dd in 1:length(first_year)) {

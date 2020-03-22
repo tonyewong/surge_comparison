@@ -42,13 +42,21 @@ for (dd in 1:length(files.tg)) {
 ##==============================================================================
 ## write GEV calibration data RDS file
 
+## only take the stations with at least min_years years of available data once processed
+idx_drop <- c()
+for (dd in 1:length(files.tg)) {
+  num_years <- nrow(data_gev[[dd]])
+  if (num_years < min_years) idx_drop <- c(idx_drop, dd)
+}
+for (ii in rev(idx_drop)) {data_gev[[ii]] <- NULL}
+
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename.gev <- paste('../input_data/processeddata_gev_',today,'.rds', sep='')
 saveRDS(data_gev, file=filename.gev)
 ##==============================================================================
 
 
-
+if(FALSE){
 ##==============================================================================
 ## construct GPD peaks-over-thresholds data object
 
@@ -66,13 +74,13 @@ for (dd in 1:length(files.tg)) {
 
 
 ##==============================================================================
-## write GEV calibration data RDS file
+## write GPD calibration data RDS file
 
 today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename.gev <- paste('../input_data/processeddata_gev_',today,'.rds', sep='')
-saveRDS(data_gev, file=filename.gev)
+filename.gpd <- paste('../input_data/processeddata_gpd_',today,'.rds', sep='')
+saveRDS(data_gpd, file=filename.gpd)
 ##==============================================================================
-
+}
 
 
 ##==============================================================================

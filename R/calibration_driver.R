@@ -29,7 +29,8 @@ if(Sys.info()['user']=='tony') {
 
 # output file name
 distr <- 'gev'
-do_data_processing <- FALSE
+do_data_processing <- TRUE
+min_years <- 15 # minimum number of years for using a tide gauge site
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 sim_id <- paste(distr,today, sep="-")
 filename.optim <- paste("../output/optim_",sim_id,".rds", sep="")
