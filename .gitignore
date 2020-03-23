@@ -2,6 +2,7 @@
 *.nc
 /output/*
 *DS_Store
+*RData
 
 # History files
 .Rhistory

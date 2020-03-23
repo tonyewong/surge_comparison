@@ -70,6 +70,7 @@ for (dd in 1:length(files.tg)) {
   uscloc <- regexpr("_", files.tg[dd])
   names(data_gpd)[dd] <- substr(files.tg[dd], start=uscloc+1, stop=dotloc-1)
   data_gpd[[dd]] <- process_gpd(files.tg[dd], dat.dir)
+  save.image(file="process_gpd_inprogress.RData")
 }
 ##==============================================================================
 

@@ -10,6 +10,11 @@ TODO   TODO   TODO   TODO   TODO   TODO
 TODO   TODO   TODO   TODO   TODO   TODO
 TODO   TODO   TODO   TODO   TODO   TODO
 
+--> need to deal with missing data in the PP/GPD set-up
+--> replace with NAs, when doing the moving average detrending, just do a single
+    for loop with an appropriately lengthed window and mean(..., na.rm=TRUE)
+--> test using a smaller (~10000? 100k?) length of the data set (dd=1 works well
+    because the first part of the data set is present)
 
 ## Function to take in a tide gauge hourly data set and return a time series of
 ## peaks-over-threshold local sea levels, together with the corresponding year.
@@ -49,8 +54,12 @@ process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_t
   # what is one hour? in units of days
   one.hours <- 1/24
 
-  # where are there gaps longer than one hour? (+10sec for precision)
-  igap <- which(time.diff > (one.hours+10/(24*60*60)))
+  # where are there missing data?
+  idx_missing <- which(data.tg$sl == fillvalue)
+  data.tg[idx_missing,"sl"] <- NA
+
+  n_data_this_year <- length(which(data.tg$sl[idx_this_year] > fillvalue))
+
 
   # Detrend by either subtracting annual means (moving 1-year window)
   print(paste('Detrending by subtracting moving window 1-year average ...', sep=''))
@@ -59,6 +68,79 @@ process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_t
   data.tg$sl.detrended <- data.tg$sl
   time.days.beg <- min(data.tg$time.days)
   time.days.end <- max(data.tg$time.days)
+
+
+
+##### reworking things and estimating timing
+if(FALSE) {
+
+# NEW WAY
+
+tmp <- data.tg$sl
+
+# detrending the first half-year and last half-year
+idx_first_year <- which(data.tg$time.days - time.days.beg <= 365.25)
+idx_last_year <- which(time.days.end - data.tg$time.days <= 365.25)
+n_idx_per_year <- 365.25*24+1 # +1 for the current step, and half year in each direction
+
+idx_first_halfyear <- which(data.tg$time.days - time.days.beg < (365.25*0.5))
+idx_last_halfyear <- which(time.days.end - data.tg$time.days < (365.25*0.5))
+
+tmp[idx_first_halfyear] <- data.tg$sl[idx_first_halfyear] - mean(data.tg$sl[idx_first_year])
+tmp[idx_last_halfyear] <- data.tg$sl[idx_last_halfyear] - mean(data.tg$sl[idx_last_year])
+
+# beginning and ending indices for the middle bit
+ibeg <- max(idx_first_halfyear) + 1
+iend <- min(idx_last_halfyear) - 1
+
+ttop <- 1000
+#ttop <- length(data.tg$time.days)
+tbeg <- proc.time()
+idx_window <- (ibeg - floor(n_idx_per_year/2)):(ibeg + floor(n_idx_per_year/2))
+pb <- txtProgressBar(min=ibeg,max=(ibeg+ttop),initial=0,style=3)
+for (tt in ibeg:(ibeg+ttop)) {
+    #data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
+    tmp[tt] <- data.tg$sl[tt] - mean(data.tg$sl[idx_window], na.rm=TRUE)
+    idx_window <- idx_window + 1
+    setTxtProgressBar(pb, tt)
+}
+close(pb)
+tend <- proc.time()
+print(paste("For",ttop,"hours of data:",(tend-tbeg)[3]))
+print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/ttop/3600,"hours"))
+
+
+
+# OLD WAY
+tmp <- data.tg$sl
+ttop <- 1000
+#ttop <- length(data.tg$time.days)
+tbeg <- proc.time()
+pb <- txtProgressBar(min=0,max=ttop,initial=0,style=3)
+for (tt in 1:ttop) {
+    # if within half a year of either end of the time series, include either the
+    # entire first year or entire last year to get a full year's worth of data in
+    # the subtracted mean
+    if (data.tg$time.days[tt] - time.days.beg < (365.25*0.5)) {
+        ind.close <- which(data.tg$time.days - time.days.beg <= 365.25)
+    } else if(time.days.end - data.tg$time.days[tt] < (365.25*0.5)) {
+        ind.close <- which(time.days.end - data.tg$time.days <= 365.25)
+    } else {
+        ind.close <- which(abs(data.tg$time.days-data.tg$time.days[tt]) <= (365.25*0.5) )
+    }
+    #data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
+    tmp[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
+    setTxtProgressBar(pb, tt)
+}
+close(pb)
+tend <- proc.time()
+print(paste("For",ttop,"hours of data:",(tend-tbeg)[3]))
+print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/ttop/3600,"hours"))
+
+}
+
+
+
 
   pb <- txtProgressBar(min=0,max=length(data.tg$time.days),initial=0,style=3)
   for (tt in 1:length(data.tg$time.days)) {
@@ -76,8 +158,6 @@ process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_t
     setTxtProgressBar(pb, tt)
   }
   close(pb)
-
-here
 
   # daily block maxima; calculate 99% quantile as GPD threshold
 
@@ -111,15 +191,15 @@ here
   }
   close(pb)
 
-  # find all the excesses, "declustering" = if two are within a day of each
-  # other, take only the maximum of the two (so make sure you save the times
-  # of each excess)
+  # find all the excesses, "declustering" = if two are within dt.decluster of
+  # each other, take only the maximum of the two (so make sure you save the
+  # times of each excess)
 
   print('... getting threshold excesses ...')
 
   # Make a list object for output for this site with everything we need
   # to calibrate the PP-GPD model
-  data_out <- vector('list', 6)
+  data_out <- vector('list', 7)
   names(data_out) <- c('counts','year','time_length','excesses','threshold','p.threshold','dt.decluster')
 
   # threshold is 99% quantile of tide gauge's observed values.
@@ -140,6 +220,7 @@ here
   sl.exceed.decl <- declustered.exceed$time.series
 
   # initialize
+  years.unique <- unique(data.tg$year)
   data_out$counts <- data_out$year <- data_out$time_length <- rep(NA, length(years.unique))
   data_out$excesses <- vector('list', length(years.unique))
 

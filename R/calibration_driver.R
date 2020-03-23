@@ -34,6 +34,7 @@ today=Sys.Date(); today=format(today,format="%d%b%Y")
 
 # helper functions
 source("trimmed_forcing.R")
+source("decluster_timeseries.R")
 source("process_gev.R")
 source("process_gpd.R")
 
