@@ -19,7 +19,6 @@
 # pdf and cdf for pp-gpd (that can handle arrays)
 # note that this assumes you aren't a jerk and send in different length
 # arrays. so... don't do that.
-# This assumes that you only send in
 #===============================================================================
 
 # use eq. 11 of Martins and Stedinger (2001), for each year independently:
@@ -90,7 +89,7 @@ gpd_cdf <- function(q, scale, shape){
 }
 
 # h is effective height (mm), lambda is poisson process rate (lambda*365.25 is
-# expected nubmer of exceedances/year), scale and shape are as in GPD, threshold
+# expected number of exceedances/year), scale and shape are as in GPD, threshold
 # is the GPD threshold, nmax is the maximum number of events/year we consider,
 # time.length is the number of days in the time interval considered (365.25 for
 # a year).

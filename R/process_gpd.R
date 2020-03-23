@@ -1,23 +1,11 @@
 ##==============================================================================
 ## process_gpd.R
 ##
-
-
-print("TODO!")
-
-
-TODO   TODO   TODO   TODO   TODO   TODO
-TODO   TODO   TODO   TODO   TODO   TODO
-TODO   TODO   TODO   TODO   TODO   TODO
-
---> need to deal with missing data in the PP/GPD set-up
---> replace with NAs, when doing the moving average detrending, just do a single
-    for loop with an appropriately lengthed window and mean(..., na.rm=TRUE)
---> test using a smaller (~10000? 100k?) length of the data set (dd=1 works well
-    because the first part of the data set is present)
-
 ## Function to take in a tide gauge hourly data set and return a time series of
 ## peaks-over-threshold local sea levels, together with the corresponding year.
+## Yields output object that will show count of 0 exceedances during years with
+## missing data, but the time_length will be less than a year, so it will behave
+## nicely in the likelihood_gpd.R functions.
 ##
 ## filename_in = string, file name
 ## data_dir = string, directory path to the file nae, relative to current directory
@@ -30,7 +18,7 @@ TODO   TODO   TODO   TODO   TODO   TODO
 
 process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_threshold=0.99, dt_decluster=3) {
 
-  tbeg <- proc.time()
+  tbeg_total <- proc.time()
 
   fillvalue <- -32767 # fill-value
   data.tg <- read.csv(paste(data_dir, filename_in, sep=''))
@@ -58,9 +46,6 @@ process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_t
   idx_missing <- which(data.tg$sl == fillvalue)
   data.tg[idx_missing,"sl"] <- NA
 
-  n_data_this_year <- length(which(data.tg$sl[idx_this_year] > fillvalue))
-
-
   # Detrend by either subtracting annual means (moving 1-year window)
   print(paste('Detrending by subtracting moving window 1-year average ...', sep=''))
 
@@ -69,14 +54,38 @@ process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_t
   time.days.beg <- min(data.tg$time.days)
   time.days.end <- max(data.tg$time.days)
 
+# for gaps:
+# 1) detrend entire data set with linear interpolation
+# 2) fit a mean annual cycle to the detrended hourly data
+# 3) add the linear interpolation back in
+# 4) any gaps are filled in with this annual cycle + linear trend
 
+# -> 1) detrend
+idx_present <- which(!is.na(data.tg$sl))
+fit <- lm(data.tg$sl[idx_present] ~ data.tg$time.days[idx_present])
+tg_trend <- fit$coefficients[1] + fit$coefficients[2]*data.tg$time.days
+tg_detrended <- data.tg$sl - tg_trend
 
-##### reworking things and estimating timing
-if(FALSE) {
+# -> 2) fit mean annual cycle
+tg_cycle <- rep(NA, n_idx_per_year)
+pb <- txtProgressBar(min=1,max=n_idx_per_year,initial=0,style=3)
+for (tt in 1:n_idx_per_year) {
+    idx_this_hour <- which( (data.tg$hour==data.tg$hour[tt]) &
+                            (data.tg$day==data.tg$day[tt]) &
+                            (data.tg$month==data.tg$month[tt]) )
+    tg_cycle[tt] <- mean(tg_detrended[idx_this_hour], na.rm=TRUE)
+    setTxtProgressBar(pb, tt)
+}
+close(pb)
 
-# NEW WAY
+# -> 3) add linear interpolation back in
+# repeat annual cycle to match the full data length
+tg_cycle_full <- rep(tg_cycle, ceiling(length(data.tg$sl)/n_idx_per_year))
+tg_cycle_full <- tg_cycle_full[1:length(data.tg$sl)]
+tg_cycle_full <- tg_cycle_full + tg_trend
 
-tmp <- data.tg$sl
+# -> 4) fill gaps with this annual cycle + linear trend
+data.tg$sl[idx_missing] <- tg_cycle_full[idx_missing]
 
 # detrending the first half-year and last half-year
 idx_first_year <- which(data.tg$time.days - time.days.beg <= 365.25)
@@ -86,78 +95,36 @@ n_idx_per_year <- 365.25*24+1 # +1 for the current step, and half year in each d
 idx_first_halfyear <- which(data.tg$time.days - time.days.beg < (365.25*0.5))
 idx_last_halfyear <- which(time.days.end - data.tg$time.days < (365.25*0.5))
 
-tmp[idx_first_halfyear] <- data.tg$sl[idx_first_halfyear] - mean(data.tg$sl[idx_first_year])
-tmp[idx_last_halfyear] <- data.tg$sl[idx_last_halfyear] - mean(data.tg$sl[idx_last_year])
+data.tg$sl.detrended[idx_first_halfyear] <- data.tg$sl[idx_first_halfyear] - mean(data.tg$sl[idx_first_year])
+data.tg$sl.detrended[idx_last_halfyear] <- data.tg$sl[idx_last_halfyear] - mean(data.tg$sl[idx_last_year])
 
 # beginning and ending indices for the middle bit
 ibeg <- max(idx_first_halfyear) + 1
 iend <- min(idx_last_halfyear) - 1
 
-ttop <- 1000
-#ttop <- length(data.tg$time.days)
 tbeg <- proc.time()
+sl <- data.tg$sl
+sl.detrended <- data.tg$sl.detrended
 idx_window <- (ibeg - floor(n_idx_per_year/2)):(ibeg + floor(n_idx_per_year/2))
-pb <- txtProgressBar(min=ibeg,max=(ibeg+ttop),initial=0,style=3)
-for (tt in ibeg:(ibeg+ttop)) {
-    #data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
-    tmp[tt] <- data.tg$sl[tt] - mean(data.tg$sl[idx_window], na.rm=TRUE)
+pb <- txtProgressBar(min=ibeg,max=iend,initial=0,style=3)
+for (tt in ibeg:iend) {
+    #data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[idx_window], na.rm=TRUE)
+    sl.detrended[tt] <- sl[tt] - mean(sl[idx_window], na.rm=TRUE)
     idx_window <- idx_window + 1
     setTxtProgressBar(pb, tt)
 }
 close(pb)
+data.tg$sl.detrended[ibeg:iend] <- sl.detrended[ibeg:iend] # and data.tg$sl was unchanged
 tend <- proc.time()
-print(paste("For",ttop,"hours of data:",(tend-tbeg)[3]))
-print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/ttop/3600,"hours"))
+print(paste("Total detrending time:",(tend-tbeg)[3]/60,"minutes"))
+# original took 93.27 minutes out of 106.92 minutes total
+# replacing the data.tg with placeholders then assigning later took 6.30 minutes
+# Still expect about 20 minutes/station, times 36 stations --> about 12 hours to process
 
+# after this, the points with missing data have values - remove these
+data.tg$sl.detrended[idx_missing] <- NA
+data.tg$sl[idx_missing] <- NA
 
-
-# OLD WAY
-tmp <- data.tg$sl
-ttop <- 1000
-#ttop <- length(data.tg$time.days)
-tbeg <- proc.time()
-pb <- txtProgressBar(min=0,max=ttop,initial=0,style=3)
-for (tt in 1:ttop) {
-    # if within half a year of either end of the time series, include either the
-    # entire first year or entire last year to get a full year's worth of data in
-    # the subtracted mean
-    if (data.tg$time.days[tt] - time.days.beg < (365.25*0.5)) {
-        ind.close <- which(data.tg$time.days - time.days.beg <= 365.25)
-    } else if(time.days.end - data.tg$time.days[tt] < (365.25*0.5)) {
-        ind.close <- which(time.days.end - data.tg$time.days <= 365.25)
-    } else {
-        ind.close <- which(abs(data.tg$time.days-data.tg$time.days[tt]) <= (365.25*0.5) )
-    }
-    #data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
-    tmp[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
-    setTxtProgressBar(pb, tt)
-}
-close(pb)
-tend <- proc.time()
-print(paste("For",ttop,"hours of data:",(tend-tbeg)[3]))
-print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/ttop/3600,"hours"))
-
-}
-
-
-
-
-  pb <- txtProgressBar(min=0,max=length(data.tg$time.days),initial=0,style=3)
-  for (tt in 1:length(data.tg$time.days)) {
-    # if within half a year of either end of the time series, include either the
-    # entire first year or entire last year to get a full year's worth of data in
-    # the subtracted mean
-    if (data.tg$time.days[tt] - time.days.beg < (365.25*0.5)) {
-      ind.close <- which(data.tg$time.days - time.days.beg <= 365.25)
-    } else if(time.days.end - data.tg$time.days[tt] < (365.25*0.5)) {
-      ind.close <- which(time.days.end - data.tg$time.days <= 365.25)
-    } else {
-      ind.close <- which(abs(data.tg$time.days-data.tg$time.days[tt]) <= (365.25*0.5) )
-    }
-    data.tg$sl.detrended[tt] <- data.tg$sl[tt] - mean(data.tg$sl[ind.close])
-    setTxtProgressBar(pb, tt)
-  }
-  close(pb)
 
   # daily block maxima; calculate 99% quantile as GPD threshold
 
@@ -166,21 +133,46 @@ print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/tto
   days.unique <- unique(days.all)
   ind.days.to.remove <- NULL
   print('... filtering down to do a daily maxima time series of only the days with at least 90% of data ...')
-  pb <- txtProgressBar(min=min(days.unique),max=max(days.unique),initial=0,style=3)
-  for (day in days.unique) {
-    ind.today <- which(floor(data.tg$time.days) == day)
-    perc.data.today <- length(ind.today)/24
-    if(perc.data.today < 0.9) {ind.days.to.remove <- c(ind.days.to.remove, match(day, days.unique))}
-    setTxtProgressBar(pb, day)
+
+  # first day
+  ind.today <- which(floor(data.tg$time.days) == days.unique[1])
+  perc.today <- (length(ind.today) - length(intersect(ind.today, idx_missing)))/24
+  if (perc.today < 0.9) {ind.days.to.remove <- c(ind.days.to.remove, 1)}
+
+  # last day
+  ind.today <- which(floor(data.tg$time.days) == max(days.unique))
+  perc.today <- (length(ind.today) - length(intersect(ind.today, idx_missing)))/24
+  if (perc.today < 0.9) {ind.days.to.remove <- c(ind.days.to.remove, length(days.unique))}
+
+  # in-between days - take advantage of continuity of data set
+  #  and idx_missing are the only ones we need to worry about
+  # --> only check unique(floor(data.tg$time.days[idx_missing]))
+
+  print('... removing days that are missing too many data points ...')
+
+  # days that are missing any data:
+  days.missing <- unique(floor(data.tg$time.days[idx_missing]))
+
+  tbeg <- proc.time()
+  pb <- txtProgressBar(min=1,max=length(days.missing),initial=0,style=3)
+  for (tt in 1:length(days.missing)) {
+    ind.today <- which(floor(data.tg$time.days) == days.missing[tt])
+    perc.missing.today <- length(intersect(ind.today, idx_missing))/24
+    if (perc.missing.today > 0.1) {ind.days.to.remove <- c(ind.days.to.remove, match(days.missing[tt], days.unique))}
+    setTxtProgressBar(pb, tt)
   }
   close(pb)
+  tend <- proc.time()
+  print(paste("Total missing data removal time:",(tend-tbeg)[3]/60,"minutes"))
   days.daily.max <- days.unique[-ind.days.to.remove]
   n.days <- length(days.daily.max)
+
+  print('... getting time series of daily maxima ...')
 
   # calculate the daily maximum sea levels on the days of 'days.daily.max'
   sl.daily.max <- rep(NA, n.days)
   years.daily.max <- rep(NA, n.days)
-  print('... calculating time series of daily maxima ...')
+  tbeg <- proc.time()
   pb <- txtProgressBar(min=0,max=n.days,initial=0,style=3)
   for (day in days.daily.max) {
     cnt <- match(day,days.daily.max)
@@ -190,6 +182,8 @@ print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/tto
     setTxtProgressBar(pb, cnt)
   }
   close(pb)
+  tend <- proc.time()
+  print(paste("Total daily maxima calculation time:",(tend-tbeg)[3]/60,"minutes"))
 
   # find all the excesses, "declustering" = if two are within dt.decluster of
   # each other, take only the maximum of the two (so make sure you save the
@@ -197,6 +191,7 @@ print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/tto
 
   print('... getting threshold excesses ...')
 
+  tbeg <- proc.time()
   # Make a list object for output for this site with everything we need
   # to calibrate the PP-GPD model
   data_out <- vector('list', 7)
@@ -232,6 +227,8 @@ print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/tto
     if(length(ind.hits.this.year) > 0) {data_out$excesses[[ind.year]] <- sl.exceed.decl[ind.hits.this.year]
     } else                             {data_out$excesses[[ind.year]] <- NA}
   }
+  tend <- proc.time()
+  print(paste("Total threshold exceedances calculation time:",(tend-tbeg)[3]/60,"minutes"))
 
   # alternatively, could bin em all together. but this won't allow for potential
   # non-stationary behavior in the poisson process
@@ -242,8 +239,8 @@ print(paste("Estimated total time:",(tend-tbeg)[3]*length(data.tg$time.days)/tto
   # that takes some time, so save the workspace image after each data set
 #  save.image(file=filename.saveprogress)
 
-  tend <- proc.time()
-  print(paste('  ... done. Took ', (tend[3]-tbeg[3])/60, ' minutes.',sep=''))
+  tend_total <- proc.time()
+  print(paste('  ... done. Took ', (tend_total[3]-tbeg_total[3])/60, ' minutes.',sep=''))
 
   return(data_out)
 }
