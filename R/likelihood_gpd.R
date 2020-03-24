@@ -222,39 +222,30 @@ log_like_ppgpd <- function(parameters,
   nbins <- length(data_calib$counts)
   #print(parameters)
   n.param <- length(parnames)
-  if(n.param==3) {
-    # fit a standard stationary PP-GPD
-    lambda <- rep(parameters[match('lambda',parnames)], nbins)
-    sigma <- rep(parameters[match('sigma',parnames)], nbins)
-    xi <- rep(parameters[match('xi',parnames)], nbins)
-  } else if(n.param==4) {
+  if ("lambda0" %in% parnames) {
     # Poisson process rate parameter nonstationary
     lambda0 <- parameters[match('lambda0',parnames)]
     lambda1 <- parameters[match('lambda1',parnames)]
-    sigma <- rep(parameters[match('sigma',parnames)], nbins)
-    xi <- rep(parameters[match('xi',parnames)], nbins)
     lambda <- lambda0 + lambda1*auxiliary
-  } else if(n.param==5) {
-    # rate and scale parameters nonstationary
-    lambda0 <- parameters[match('lambda0',parnames)]
-    lambda1 <- parameters[match('lambda1',parnames)]
+  } else {
+    lambda <- rep(parameters[match('lambda',parnames)], nbins)
+  }
+  if ("sigma0" %in% parnames) {
+    # scale parameter nonstationary
     sigma0 <- parameters[match('sigma0',parnames)]
     sigma1 <- parameters[match('sigma1',parnames)]
-    xi <- rep(parameters[match('xi',parnames)], nbins)
-    lambda <- lambda0 + lambda1*auxiliary
     sigma <- exp(sigma0 + sigma1*auxiliary)
-  } else if(n.param==6) {
-    # rate, scale and shape all nonstationary
-    lambda0 <- parameters[match('lambda0',parnames)]
-    lambda1 <- parameters[match('lambda1',parnames)]
-    sigma0 <- parameters[match('sigma0',parnames)]
-    sigma1 <- parameters[match('sigma1',parnames)]
+  } else {
+    sigma <- rep(parameters[match('sigma',parnames)], nbins)
+  }
+  if ("xi0" %in% parnames) {
+    # shape parameter nonstationary
     xi0 <- parameters[match('xi0',parnames)]
     xi1 <- parameters[match('xi1',parnames)]
-    lambda <- lambda0 + lambda1*auxiliary
-    sigma <- exp(sigma0 + sigma1*auxiliary)
     xi <- xi0 + xi1*auxiliary
-  } else {print('ERROR - invalid number of parameters for PP-GPD')}
+  } else {
+    xi <- rep(parameters[match('xi',parnames)], nbins)
+  }
 
   # check extra conditions that would otherwise 'break' the likelihood function
   if( any(lambda < 0) | any(sigma < 0) | any(is.na(lambda)) | any(is.na(sigma)) ) {llik <- -Inf}
@@ -271,6 +262,7 @@ log_like_ppgpd <- function(parameters,
 
   # constraint on lambda0, lambda1 and forc_max
   if( exists('lambda0') & exists('lambda1') ) {
+    forc_max <- max(auxiliary)
     if( lambda1[1] < (-lambda0[1]/forc_max) ) {llik <- -Inf}
   }
 

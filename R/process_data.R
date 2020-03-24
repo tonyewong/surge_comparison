@@ -58,7 +58,7 @@ saveRDS(data_gev, file=filename.gev)
 ##==============================================================================
 
 
-if(FALSE){
+
 ##==============================================================================
 ## construct GPD peaks-over-thresholds data object
 
@@ -70,7 +70,7 @@ for (dd in 1:length(files.tg)) {
   uscloc <- regexpr("_", files.tg[dd])
   names(data_gpd)[dd] <- substr(files.tg[dd], start=uscloc+1, stop=dotloc-1)
   data_gpd[[dd]] <- process_gpd(files.tg[dd], dat.dir)
-  save.image(file="process_gpd_inprogress.RData")
+  saveRDS(data_gpd, file="process_gpd_inprogress.rds")
 }
 ##==============================================================================
 
@@ -83,7 +83,7 @@ today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename.gpd <- paste('../input_data/processeddata_gpd_',today,'.rds', sep='')
 saveRDS(data_gpd, file=filename.gpd)
 ##==============================================================================
-}
+
 
 
 ##==============================================================================

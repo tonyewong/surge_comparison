@@ -85,7 +85,7 @@ optim_out <- vector("list", length(data_gev))
 names(optim_out) <- names(data_gev)
 
 for (dd in 1:length(data_gev)) {
-  print(paste("Maximum likelihood estimation for site ",site_names[dd]," (",dd,"/",length(data_gev),")...", sep=""))
+  print(paste("Maximum likelihood estimation for GEV models for site ",site_names[dd]," (",dd,"/",length(data_gev),")...", sep=""))
   optim_out[[dd]] <- vector("list", length(names_covariates))
   names(optim_out[[dd]]) <- names_covariates
   for (cc in names_covariates) {
@@ -103,10 +103,10 @@ for (dd in 1:length(data_gev)) {
       optim_out[[dd]][[cc]][[mm]] <- out.deoptim
     }
   }
+  # takes a while, so save after each one
+  saveRDS(optim_out, file=filename.optim)
 }
-# save
-print(paste('saving MCMC output as .rds file ', filename.optim, sep=''))
-saveRDS(optim_out, file=filename.optim)
+print(paste('Saved DEoptim output as .rds file ', filename.optim, sep=''))
 ##==============================================================================
 
 
@@ -118,50 +118,6 @@ saveRDS(optim_out, file=filename.optim)
 distr <- 'gpd'
 sim_id <- paste(distr,today, sep="-")
 filename.optim <- paste("../output/optim_",sim_id,".rds", sep="")
-# TODO - do optimization using GEV
-
-##==============================================================================
-
-
-
-
-
-
-
-
-##=============================================================================
-
-
-
-##=============================================================================
-## MLE calibration for GPD parameters...
-## ... for each model, for each covariate, for each tide gauge site
-
-## helper functions and some set up
-
-# output file name
-distr <- 'gpd'
-do_data_processing <- TRUE
-min_years <- 15 # minimum number of years for using a tide gauge site
-today=Sys.Date(); today=format(today,format="%d%b%Y")
-sim_id <- paste(distr,today, sep="-")
-filename.optim <- paste("../output/optim_",sim_id,".rds", sep="")
-
-if (do_data_processing) {
-  source("process_gpd_helper.R")
-  source("process_data.R") # do processing, then read the anticipated file names below
-  data_calib <- readRDS(paste("../input_data/processeddata_gev_",today,".rds", sep=""))
-  covariates <- readRDS(paste("../input_data/covariates_",today,".rds", sep=""))
-} else {
-  # read tide gauge data and covariates, fit previously
-  data_calib <- readRDS("../input_data/processeddata_gev_21Mar2020.rds")
-  covariates <- readRDS("../input_data/covariates_21Mar2020.rds")
-}
-site_names <- names(data_calib)
-names_covariates <- colnames(covariates)[2:5]
-
-# routine to trim the covariate forcing down to the length of the data set
-source("trimmed_forcing.R")
 
 # log-likelihood functions (prior and posterior not used here)
 source("likelihood_gpd.R")
@@ -169,17 +125,11 @@ source("likelihood_gpd.R")
 # set up parameters for all 8 candidate model structures
 source("parameter_setup_gpd.R")
 
-# settings for DEoptim (to find MCMC initial conditions)
-NP.deoptim <- 100      # number of DE population members (at least 10*[# parameters])
-niter.deoptim <- 100   # number of DE iterations
-F.deoptim <- 0.8
-CR.deoptim <- 0.9
+optim_out <- vector("list", length(data_gpd))
+names(optim_out) <- names(data_gpd)
 
-optim_out <- vector("list", length(data_calib))
-names(optim_out) <- names(data_calib)
-
-for (dd in 1:length(data_calib)) {
-  print(paste("Maximum likelihood estimation for site ",site_names[dd]," (",dd,"/",length(data_calib),")...", sep=""))
+for (dd in 1:length(data_gpd)) {
+  print(paste("Maximum likelihood estimation for GPD models for site ",site_names[dd]," (",dd,"/",length(data_gpd),")...", sep=""))
   optim_out[[dd]] <- vector("list", length(names_covariates))
   names(optim_out[[dd]]) <- names_covariates
   for (cc in names_covariates) {
@@ -187,21 +137,21 @@ for (dd in 1:length(data_calib)) {
     time_forc <- covariates[,"year"]
     optim_out[[dd]][[cc]] <- vector("list", nmodel)
     for (mm in 1:nmodel) {
-      if (mm > 1) {auxiliary <- trimmed_forcing(data_calib[[dd]][,"year"], time_forc, covar_forc)$forcing
+      if (mm > 1) {auxiliary <- trimmed_forcing(data_gpd[[dd]]$year, time_forc, covar_forc)$forcing
       } else {auxiliary <- NULL}
 
       # initial parameter estimates
-      out.deoptim <- DEoptim(neg_log_like_gev, lower=gev_models[[mm]]$bound_lower, upper=gev_models[[mm]]$bound_upper,
+      out.deoptim <- DEoptim(neg_log_like_ppgpd, lower=gpd_models[[mm]]$bound_lower, upper=gpd_models[[mm]]$bound_upper,
                              DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
-                             parnames=gev_models[[mm]]$parnames, data_calib=data_calib[[dd]][,"lsl_max"], auxiliary=auxiliary)
+                             parnames=gpd_models[[mm]]$parnames, data_calib=data_gpd[[dd]], auxiliary=auxiliary)
       optim_out[[dd]][[cc]][[mm]] <- out.deoptim
     }
   }
+  # takes a while, so save after each one
+  saveRDS(optim_out, file=filename.optim)
 }
-# save
-print(paste('saving MCMC output as .rds file ', filename.optim, sep=''))
-saveRDS(optim_out, file=filename.optim)
-##=============================================================================
+print(paste('Saved DEoptim output as .rds file ', filename.optim, sep=''))
+##==============================================================================
 
 
 

@@ -21,7 +21,7 @@ for (dd in 1:length(first_year)) {
   first_year[dd] <- min(data_gev[[dd]][,1])
   last_year[dd] <- max(data_gev[[dd]][,1])
 }
-years <- min(first_year):max(last_year)
+years <- (min(first_year)-1):max(last_year)
 
 
 # get NAO index ================================================================
