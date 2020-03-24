@@ -25,12 +25,14 @@ if(Sys.info()['user']=='tony') {
 }
 
 ## Set up. Make sure consistent with the
-distr <- "gev"
-datestamp <- "22Mar2020"
-sim_id <- paste(distr,datestamp, sep="-")
-filename_optim <- paste("../output/optim_",sim_id,".rds", sep="")
+today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename_covariates <- "../input_data/covariates_22Mar2020.rds"
-filename_calibdata  <- "../input_data/processeddata_gev_22Mar2020.rds"
+filename_calibdata_gev  <- "../input_data/processeddata_gev_22Mar2020.rds"
+filename_calibdata_gpd  <- "../input_data/processeddata_gpd_23Mar2020.rds"
+filename_optim_gev <- "../output/optim_gev-22Mar2020.rds"
+filename_optim_gpd <- "../output/optim_gpd-23Mar2020.rds"
+names_evm <- c("gev", "gpd")
+n_evm <- length(names_evm)
 
 ## do some analyzing
 source("best_models.R") # yields parameters[[model]][site,parameter]

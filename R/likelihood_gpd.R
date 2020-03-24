@@ -81,7 +81,7 @@ gpd_cdf <- function(q, scale, shape){
     } else if(any(shape > 0)) {
       i1 <- which(shape > 0); i2 <- which(q < (-scale/shape)); i3 <- intersect(i1,i2)
       # if shape > 0, i3 is all the places where q < theoretical upper bound
-      # -> there ought to be 100% probability mass above here    }
+      # -> there ought to be 100% probability mass above here
       p[i3] <- 0
     }
   }
@@ -120,39 +120,30 @@ project_ppgpd <- function(parameters,
   parameters_project <- mat.or.vec(length(auxiliary), 3)
   colnames(parameters_project) <- c('lambda','sigma','xi')
   n.param <- length(parnames)
-  if(n.param==3) {
-    # fit a standard stationary PP-GPD
-    lambda <- rep(parameters[match('lambda',parnames)], length(auxiliary))
-    sigma <- rep(parameters[match('sigma',parnames)], length(auxiliary))
-    xi <- rep(parameters[match('xi',parnames)], length(auxiliary))
-  } else if(n.param==4) {
-    # rate parameter nonstationary
+  if ("lambda0" %in% parnames) {
+    # Poisson process rate parameter nonstationary
     lambda0 <- parameters[match('lambda0',parnames)]
     lambda1 <- parameters[match('lambda1',parnames)]
-    sigma <- rep(parameters[match('sigma',parnames)], length(auxiliary))
-    xi <- rep(parameters[match('xi',parnames)], length(auxiliary))
     lambda <- lambda0 + lambda1*auxiliary
-  } else if(n.param==5) {
-    # rate and scale parameters nonstationary
-    lambda0 <- parameters[match('lambda0',parnames)]
-    lambda1 <- parameters[match('lambda1',parnames)]
+  } else {
+    lambda <- rep(parameters[match('lambda',parnames)], nbins)
+  }
+  if ("sigma0" %in% parnames) {
+    # scale parameter nonstationary
     sigma0 <- parameters[match('sigma0',parnames)]
     sigma1 <- parameters[match('sigma1',parnames)]
-    xi <- rep(parameters[match('xi',parnames)], length(auxiliary))
-    lambda <- lambda0 + lambda1*auxiliary
     sigma <- exp(sigma0 + sigma1*auxiliary)
-  } else if(n.param==6) {
-    # rate, scale and shape all nonstationary
-    lambda0 <- parameters[match('lambda0',parnames)]
-    lambda1 <- parameters[match('lambda1',parnames)]
-    sigma0 <- parameters[match('sigma0',parnames)]
-    sigma1 <- parameters[match('sigma1',parnames)]
+  } else {
+    sigma <- rep(parameters[match('sigma',parnames)], nbins)
+  }
+  if ("xi0" %in% parnames) {
+    # shape parameter nonstationary
     xi0 <- parameters[match('xi0',parnames)]
     xi1 <- parameters[match('xi1',parnames)]
-    lambda <- lambda0 + lambda1*auxiliary
-    sigma <- exp(sigma0 + sigma1*auxiliary)
     xi <- xi0 + xi1*auxiliary
-  } else {print('ERROR - invalid number of parameters for PP-GPD')}
+  } else {
+    xi <- rep(parameters[match('xi',parnames)], nbins)
+  }
 
   parameters_project[,'lambda'] <- lambda
   parameters_project[,'sigma'] <- sigma
