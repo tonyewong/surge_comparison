@@ -15,14 +15,14 @@ nrp <- length(return_periods)
 
 # want projections for each site, for each model, for a variety of return periods, for a variety of years, for each simulation in the ensemble
 # Note: set up like this, can reference the year we want as string in 3rd element: rl[[dd]][,,"2050"], e.g.
-rl <- vector('list', n_evm); names(rl) <- names_evm
+rl <- rp <- vector('list', n_evm); names(rl) <- names(rp) <- names_evm
 for (gg in names_evm) {
-  rl[[gg]] <- vector('list', nsite); names(rl[[gg]]) <- site_names
+  rl[[gg]] <- rp[[gg]] <- vector('list', nsite); names(rl[[gg]]) <- names(rp[[gg]]) <- site_names
   for (dd in 1:nsite) {
-    rl[[gg]][[dd]] <- vector("list", ncovar)
-    names(rl[[gg]][[dd]]) <- names_covariates
+    rl[[gg]][[dd]] <- rp[[gg]][[dd]] <- vector("list", ncovar)
+    names(rl[[gg]][[dd]]) <- names(rp[[gg]][[dd]]) <- names_covariates
     for (cc in names_covariates) {
-      rl[[gg]][[dd]][[cc]] <- array(dim=c(nrp, nmodel, nyear), dimnames=list(return_periods, 1:nmodel, years_proj))
+      rl[[gg]][[dd]][[cc]] <- rp[[gg]][[dd]][[cc]] <- array(dim=c(nrp, nmodel, nyear), dimnames=list(return_periods, 1:nmodel, years_proj))
     }
   }
 }
@@ -64,6 +64,11 @@ for (gg in names_evm) {
             }
             for (rr in 1:nrp) {
               rl[[gg]][[dd]][[cc]][rr,mm,yy] <- qevd(1-1/return_periods[rr], loc=mu, scale=sigma, shape=xi)
+              if (yy==1) {
+                rp[[gg]][[dd]][[cc]][rr,mm,yy] <- 1/(1-pevd(rl[[gg]][[dd]][[cc]][rr,mm,yy], loc=mu, scale=sigma, shape=xi))
+              } else {
+                rp[[gg]][[dd]][[cc]][rr,mm,yy] <- 1/(1-pevd(rl[[gg]][[dd]][[cc]][rr,mm,1], loc=mu, scale=sigma, shape=xi))
+              }
             }
           }
         }
@@ -100,6 +105,13 @@ for (gg in names_evm) {
               rl[[gg]][[dd]][[cc]][rr,mm,yy] <- rlevd(return_periods[rr], scale=sigma,
                                                       shape=xi, threshold=data_calib[[gg]][[dd]]$threshold,
                                                       type='GP', npy=365.25, rate=lambda)
+              if (yy==1) {
+                rp[[gg]][[dd]][[cc]][rr,mm,yy] <- 1/ppgpd_overtop(rl[[gg]][[dd]][[cc]][rr,mm,yy], lambda, sigma, xi,
+                                                                  data_calib[[gg]][[dd]]$threshold, nmax=182.6, time.length=365.25)
+              } else {
+                rp[[gg]][[dd]][[cc]][rr,mm,yy] <- 1/ppgpd_overtop(rl[[gg]][[dd]][[cc]][rr,mm,1], lambda, sigma, xi,
+                                                                  data_calib[[gg]][[dd]]$threshold, nmax=182.6, time.length=365.25)
+              }
             }
           }
         }
@@ -112,8 +124,8 @@ for (gg in names_evm) {
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename.returnlevels <- paste('../output/returnlevels_',today,'.RData', sep='')
 print(paste("Saving return levels data (`rl`) to file",filename.returnlevels))
-save(list=c('rl', 'site_names', 'covariates', 'return_periods', 'years_proj',
-            'nsite', 'nmodel', 'nrp', 'nyear', 'gev_models', 'gpd_models'), file=filename.returnlevels)
+save(list=c('rl', 'rp', 'site_names', 'covariates', 'return_periods', 'years_proj',
+            'nsite', 'nmodel', 'nrp', 'nyear', 'gev_models', 'gpd_models', 'data_calib'), file=filename.returnlevels)
 
 ##==============================================================================
 ## End
