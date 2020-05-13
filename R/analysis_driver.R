@@ -343,8 +343,8 @@ for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics));
 model_choices <- c(1,2,3,4,5,6,7,8)
 for (metric in names(metrics)) {
   for (gg in names_evm) {
-    best_models_map[[gg]][[metric]] <- rep(NA, nsite)
-    names(best_models_map[[gg]][[metric]]) <- site_names
+    best_models_map[[gg]][[metric]] <- vector('list', 2); names(best_models_map[[gg]][[metric]]) <- c('covar','model')
+    for (ii in 1:2) {best_models_map[[gg]][[metric]][[ii]] <- rep(NA, nsite); names(best_models_map[[gg]][[metric]][[ii]]) <- site_names}
     for (dd in site_names) {
         mat <- metrics[[metric]][[gg]][dd,,model_choices]
         idx_min <- which.min(mat)
@@ -352,17 +352,21 @@ for (metric in names(metrics)) {
         if(idx_row==0) {idx_row <- nrow(mat)}
         idx_col <- which.min(as.vector(mat[idx_row,]))
         if(idx_col==1) {idx_row <- 5} # stationary model
-        best_models_map[[gg]][[metric]][dd] <- idx_row
+        best_models_map[[gg]][[metric]]$covar[dd] <- idx_row
+        best_models_map[[gg]][[metric]]$model[dd] <- idx_col
     }
   }
 }
 
 ## site choices  #covariate_labels
 metric <- "AIC" # which metric to use for the plot?
-covariate_choices_site <- vector("list", 3); names(covariate_choices_site) <- c("gev","gpd","both")
+covariate_choices_site <- model_choices_site <- vector("list", 3)
+names(covariate_choices_site) <- names(model_choices_site) <- c("gev","gpd","both")
 for (gg in names_evm) {
   covariate_choices_site[[gg]] <- vector("list", 5)
-  for (cc in 1:5) {covariate_choices_site[[gg]][[cc]] <- which(best_models_map[[gg]][[metric]]==cc)}
+  model_choices_site[[gg]] <- vector("list", length(model_choices))
+  for (cc in 1:5) {covariate_choices_site[[gg]][[cc]] <- which(best_models_map[[gg]][[metric]]$covar==cc)}
+  for (mm in 1:length(model_choices)) {model_choices_site[[gg]][[mm]] <- which(best_models_map[[gg]][[metric]]$model==mm)}
 }
 covariate_colors <- vector("list", 5); names(covariate_colors) <- covariate_labels
 covariate_colors$Time <- "darkorange3"
@@ -380,7 +384,8 @@ par(mfrow=c(2,1))
 
 # GEV model structures
 gg <- "gev"
-map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66), ylim=c(22, 48), mar=c(4,10,0,0))
+map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
+map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
 for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
 mtext(side=1, text='Longitude', line=2.0, cex=1)
 mtext(side=2, text='Latitude', line=3.8, cex=1)
@@ -393,7 +398,8 @@ legend(-74, 32, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
 
 # GPD model structures
 gg <- "gpd"
-map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66), ylim=c(22, 48), mar=c(4,10,0,0))
+map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
+map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
 for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
 mtext(side=1, text='Longitude', line=2.0, cex=1)
 mtext(side=2, text='Latitude', line=3.8, cex=1)
@@ -410,11 +416,134 @@ for (gg in names_evm) {for (cc in 1:5) print(paste(gg,covariate_labels[cc],lengt
 
 
 ##==============================================================================
+## Map of new return period at points in future,
+## based on "best" model choice (covariate and structure)
+## for each site, for each of GEV and GPD
+##======================================
+
+# HERE NOW
+
+
+
+# revisit model choices, but eliminate all with xi nonstationary
+best_models_map <- vector("list", 2); names(best_models_map) <- names_evm
+for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics)); names(best_models_map[[gg]]) <- names(metrics)}
+model_choices <- c(1,2,3,5)
+for (metric in names(metrics)) {
+  for (gg in names_evm) {
+    best_models_map[[gg]][[metric]] <- vector('list', 2); names(best_models_map[[gg]][[metric]]) <- c('covar','model')
+    for (ii in 1:2) {best_models_map[[gg]][[metric]][[ii]] <- rep(NA, nsite); names(best_models_map[[gg]][[metric]][[ii]]) <- site_names}
+    for (dd in site_names) {
+        mat <- metrics[[metric]][[gg]][dd,,model_choices]
+        idx_min <- which.min(mat)
+        idx_row <- idx_min%%nrow(mat)
+        if(idx_row==0) {idx_row <- nrow(mat)}
+        idx_col <- which.min(as.vector(mat[idx_row,]))
+        if(idx_col==1) {idx_row <- 5} # stationary model
+        best_models_map[[gg]][[metric]]$covar[dd] <- idx_row
+        best_models_map[[gg]][[metric]]$model[dd] <- idx_col
+    }
+  }
+}
+
+metric <- "AIC"
+rp_old <- "50"
+year <- 2050
+yy <- match(year, years_proj)
+
+library(plot3D)
+
+png("../figures/return_periods_map.png", width=500, height=760)
+par(mfrow=c(2,1))
+
+rp_new <- vector("list",length(names_evm)); names(rp_new) <- names_evm
+# GEV model structures
+gg <- "gev"
+rp_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+for (dd in 1:length(site_names)) {
+  cc <- best_models_map[[gg]][[metric]]$covar[dd]
+  mm <- model_choices[best_models_map[[gg]][[metric]]$model[dd]]
+  if (cc==5) {rp_new[[gg]][dd] <- as.numeric(rp_old)
+  } else     {rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])}
+}
+idx_long2 <- idx_long[-8] # because New London is all weird
+gr <- .bincode(rp_new[[gg]][idx_long2], seq(min(rp_new[[gg]][idx_long2]), max(rp_new[[gg]][idx_long2]), len=length(idx_long2)), include.lowest = T)
+cols <- c("firebrick", "orange", "yellow", "white")
+col <- colorRampPalette(cols, bias=1.75)(length(idx_long))[gr]
+map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
+map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
+points(lons[idx_long2], lats[idx_long2], bg=col, col="black", cex=2, pch=21)
+mtext(side=1, text='Longitude', line=2.0, cex=1)
+mtext(side=2, text='Latitude', line=3.8, cex=1)
+mtext(side=3, text=expression('(a)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GEV', line=0.1, cex=1.3)
+axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
+axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
+#legend(-74, 32, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
+#       col=c(covariate_colors$Stat,covariate_colors$Time,covariate_colors$NAO,covariate_colors$Temp,covariate_colors$`Sea level`),
+#       pt.cex=2, cex=1, bty='n')
+colkey(clim=c(quantile(rp_new[[gg]][idx_long2],c(0,1))), at=seq(from=0,to=as.numeric(rp_old),by=10), labels=seq(from=1, to=as.numeric(rp_old), by=10), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=1.75)(length(idx_long2)))
+
+# COLOR BAR CLEARLY NOT LINED UP WITH THE FIGURE DOTS
+
+# GPD model structures
+gg <- "gpd"
+rp_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+for (dd in 1:length(site_names)) {
+  cc <- best_models_map[[gg]][[metric]]$covar[dd]
+  mm <- model_choices[best_models_map[[gg]][[metric]]$model[dd]]
+  if (cc==5) {rp_new[[gg]][dd] <- as.numeric(rp_old)
+  } else     {rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])}
+}
+gr <- .bincode(rp_new[[gg]][idx_long2], seq(min(rp_new[[gg]][idx_long2]), max(rp_new[[gg]][idx_long2]), len=length(idx_long2)), include.lowest = T)
+cols <- c("firebrick", "orange", "yellow", "white")
+col <- colorRampPalette(cols, bias=1.75)(length(idx_long))[gr]
+map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
+map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
+points(lons[idx_long2], lats[idx_long2], bg=col, col="black", cex=2, pch=21)
+mtext(side=1, text='Longitude', line=2.0, cex=1)
+mtext(side=2, text='Latitude', line=3.8, cex=1)
+mtext(side=3, text=expression('(b)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GPD', line=0.1, cex=1.3)
+axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
+axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
+colkey(clim=c(quantile(rp_new[[gg]][idx_long2],c(0,1))), at=seq(from=0,to=as.numeric(rp_old),by=10), labels=seq(from=1, to=as.numeric(rp_old), by=10), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=1.75)(length(idx_long2)))
+
+dev.off()
+
+
+
+
+# OLD CODE
+gr <- .bincode(rp_new, seq(min(rp_new), max(rp_new), len=length(rp_new)), include.lowest = T)
+cols <- c("paleturquoise4", "lightgoldenrod", "firebrick")
+bias <- 4.5
+col <- colorRampPalette(cols, bias=bias)(length(rp_new))[gr]
+
+png("./figures/Netherlands_cost_rcp85p50.png", width = 600, height = 600)
+par(mfrow=c(1,1), mai=c(6,6,.5,.5))
+map("world", fill=TRUE, col="gray85", bg="white", xlim=c(3, 7), ylim=c(51, 54), mar=c(8,7,0,0))
+points(cost[[site]][[rcp]]$p50[,"lon"], cost[[site]][[rcp]]$p50[,"lat"], col=col, cex=2, pch=16)
+points(rot[1], rot[2], col="black", pch=15, lwd=3, cex=1.5); text(rot[1]+0.5, rot[2], pos=1, "Rotterdam", cex=1.3)
+points(ams[1], ams[2], col="black", pch=8, lwd=3, cex=1.5); text(ams[1]+0.5, ams[2]-0.12, pos=1, "Amsterdam", cex=1.3)
+points(hag[1], hag[2], col="black", pch=15, lwd=3, cex=1.5); text(hag[1]-0.62, hag[2], pos=3, "The Hague", cex=1.3)
+points(del[1], del[2], col="black", pch=15, lwd=3, cex=1.5); text(del[1]-0.25, del[2], pos=1, "Delfzijl", cex=1.3)
+mtext(side=1, text='Longitude', line=2.5, cex=1.5)
+mtext(side=2, text='Latitude', line=4.5, cex=1.5)
+mtext(side=3, text='[$B]', line=1, cex=1.5, adj=1.13)
+axis(side=1, at=seq(from=3, to=7, by=0.5), labels=c("3 E", "", "4 E", "", "5 E", "", "6 E", "", "7 E"), cex.axis=1.5)
+axis(side=2, at=seq(from=51, to=54, by=0.5), labels=c("51 N", "", "52 N", "", "53 N", "", "54 N"), las=1, cex.axis=1.5)
+colkey(clim=c(0,200), at=seq(from=0,to=200,by=10), labels=c("0","","20","","40","","60","","80","","100","","120","","140","","160","","180","","200"), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=bias)(length(cost_norm)))
+dev.off()
+
+##==============================================================================
+
+
+
+##==============================================================================
 ## Map of model choice based on location
 ## (all covariates together? or just one?)
 ##======================================
 
-todo
+# todo?
 
 ##==============================================================================
 
