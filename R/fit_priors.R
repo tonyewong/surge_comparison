@@ -372,7 +372,7 @@ for (dd in 1:length(data_all)) {
       data_all[[dd]]$gev_year$year <- data_all[[dd]]$gev_year$year[-irem]
       data_all[[dd]]$gev_year$lsl_max <- data_all[[dd]]$gev_year$lsl_max[-irem]
     } else if(data_all[[dd]]$gev_year$year[1] > covariates[1,'year']) {
-    # if begins after the forcing, clip the forcing
+      # if begins after the forcing, clip the forcing
       irem_aux <- c(irem_aux, which(covariates[,'year'] < data_all[[dd]]$gev_year$year[1]))
     }
 
@@ -382,12 +382,16 @@ for (dd in 1:length(data_all)) {
       data_all[[dd]]$gev_year$year <- data_all[[dd]]$gev_year$year[-irem]
       data_all[[dd]]$gev_year$lsl_max <- data_all[[dd]]$gev_year$lsl_max[-irem]
     } else if(max(data_all[[dd]]$gev_year$year) < max(covariates[,'year'])) {
-    # if ends before forcing, clip the forcing
+      # if ends before forcing, clip the forcing
       irem_aux <- c(irem_aux, which(covariates[,'year'] > max(data_all[[dd]]$gev_year$year)))
     }
 
     covariates_trimmed <- covariates
     if(length(irem_aux) > 0) {covariates_trimmed <- covariates_trimmed[-irem_aux,]}
+
+    # now, match the years from the LSL_max record within the covariates' years
+    idx_keep_aux <- match(data_all[[dd]]$gev_year$year, covariates_trimmed[,'year'])
+    covariates_trimmed <- covariates_trimmed[idx_keep_aux,]
 
     for (cc in names_covariates) {
 
@@ -431,8 +435,8 @@ print('fitting prior distributions to the MLE parameters...')
 
 # assign which parameters have which priors
 if(exists('gamma.priors')) {rm(list=c('gamma.priors','normal.priors','uniform.priors'))}
-gamma.priors <- c('lambda','lambda0','sigma','sigma0')
-normal.priors <- c('lambda1','sigma1','xi','xi0','xi1')
+gamma.priors <- c('mu','mu0','sigma','sigma0')
+normal.priors <- c('mu1','sigma1','xi','xi0','xi1')
 uniform.priors <- NULL
 
 priors_normalgamma <- vector('list', length(names_covariates))
