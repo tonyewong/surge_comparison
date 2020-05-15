@@ -278,6 +278,8 @@ for (cc in names_covariates) {
   covariates_proj[,cc] <- (covariates_proj[,cc] - norms[cc,'min'])/(norms[cc,'max'] - norms[cc,'min'])
 }
 
+covariates <- cbind(covariates_proj[1:nrow(covariates), "year"] ,covariates)
+colnames(covariates)[1] <- "year"
 
 #===============================================================================
 # End

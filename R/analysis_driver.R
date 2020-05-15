@@ -441,7 +441,7 @@ for (metric in names(metrics)) {
         idx_col <- which.min(as.vector(mat[idx_row,]))
         if(idx_col==1) {idx_row <- 5} # stationary model
         best_models_map[[gg]][[metric]]$covar[dd] <- idx_row
-        best_models_map[[gg]][[metric]]$model[dd] <- idx_col
+        best_models_map[[gg]][[metric]]$model[dd] <- model_choices[idx_col]
     }
   }
 }
@@ -462,7 +462,7 @@ gg <- "gev"
 rp_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
 for (dd in 1:length(site_names)) {
   cc <- best_models_map[[gg]][[metric]]$covar[dd]
-  mm <- model_choices[best_models_map[[gg]][[metric]]$model[dd]]
+  mm <- best_models_map[[gg]][[metric]]$model[dd]
   if (cc==5) {rp_new[[gg]][dd] <- as.numeric(rp_old)
   } else     {rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])}
 }
@@ -490,7 +490,7 @@ gg <- "gpd"
 rp_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
 for (dd in 1:length(site_names)) {
   cc <- best_models_map[[gg]][[metric]]$covar[dd]
-  mm <- model_choices[best_models_map[[gg]][[metric]]$model[dd]]
+  mm <- best_models_map[[gg]][[metric]]$model[dd]
   if (cc==5) {rp_new[[gg]][dd] <- as.numeric(rp_old)
   } else     {rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])}
 }
@@ -510,6 +510,7 @@ colkey(clim=c(quantile(rp_new[[gg]][idx_long2],c(0,1))), at=seq(from=0,to=as.num
 dev.off()
 
 
+#cbind(site_names, lats, lons, rp_new$gpd, covariate_labels[best_models_map[[gg]][[metric]]$covar], best_models_map[[gg]][[metric]]$model, num_years)[idx_long,]
 
 
 # OLD CODE
