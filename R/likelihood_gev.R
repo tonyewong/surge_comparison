@@ -104,5 +104,14 @@ log_post_gev <- function(parameters, parnames, data_calib, priors, auxiliary){
 
 
 #===============================================================================
+# negative log(posterior) for gev model
+#===============================================================================
+neg_log_post_gev <- function(parameters, parnames, data_calib, priors, auxiliary) {
+  return(-log_post_gev(parameters,parnames,data_calib,priors,auxiliary))
+}
+#===============================================================================
+
+
+#===============================================================================
 # End
 #===============================================================================

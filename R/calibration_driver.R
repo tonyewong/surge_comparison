@@ -28,7 +28,9 @@ if(Sys.info()['user']=='tony') {
 ##==============================================================================
 ## Helpers and set up
 
+calib_post <- TRUE
 do_data_processing <- FALSE
+do_fit_priors <- FALSE
 min_years <- 15 # minimum number of years for using a tide gauge site
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 
@@ -67,12 +69,28 @@ names_covariates <- colnames(covariates)[2:5]
 
 
 
+##=============================================================================
+## priors
+
+if (do_fit_priors) {
+  source("fit_priors.R") # do processing, then read the anticipated file names below
+} else {
+  # read priors, fit previously
+  priors <- vector("list", 2); names(priors) <- c("gev","gpd")
+  priors$gev <- readRDS("../input_data/surge_priors_normalgamma_gev_15May2020.rds")
+  priors$gpd <- readRDS("../input_data/surge_priors_normalgamma_gpd_15May2020.rds")
+}
 ##==============================================================================
-## MLE calibration for GEV parameters...
+
+
+
+##==============================================================================
+## MLE or MAP calibration for GEV parameters...
 ## ... for each model, for each covariate, for each tide gauge site
 
 distr <- 'gev'
-sim_id <- paste(distr,today, sep="-")
+if (calib_post) {sim_id <- paste(distr,"post",today, sep="_")
+} else {sim_id <- paste(distr,"like",today, sep="_")}
 filename.optim <- paste("../output/optim_",sim_id,".rds", sep="")
 
 # log-likelihood functions (prior and posterior not used here)
@@ -85,7 +103,7 @@ optim_out <- vector("list", length(data_gev))
 names(optim_out) <- names(data_gev)
 
 for (dd in 1:length(data_gev)) {
-  print(paste("Maximum likelihood estimation for GEV models for site ",site_names[dd]," (",dd,"/",length(data_gev),")...", sep=""))
+  print(paste("Parameter estimation for GEV models for site ",site_names[dd]," (",dd,"/",length(data_gev),")...", sep=""))
   optim_out[[dd]] <- vector("list", length(names_covariates))
   names(optim_out[[dd]]) <- names_covariates
   for (cc in names_covariates) {
@@ -95,11 +113,16 @@ for (dd in 1:length(data_gev)) {
     for (mm in 1:nmodel) {
       if (mm > 1) {auxiliary <- trimmed_forcing(data_gev[[dd]][,"year"], time_forc, covar_forc)$forcing
       } else {auxiliary <- NULL}
-
-      # initial parameter estimates
-      out.deoptim <- DEoptim(neg_log_like_gev, lower=gev_models[[mm]]$bound_lower, upper=gev_models[[mm]]$bound_upper,
-                             DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
-                             parnames=gev_models[[mm]]$parnames, data_calib=data_gev[[dd]][,"lsl_max"], auxiliary=auxiliary)
+      if (calib_post) {
+        out.deoptim <- DEoptim(neg_log_post_gev, lower=gev_models[[mm]]$bound_lower, upper=gev_models[[mm]]$bound_upper,
+                               DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
+                               parnames=gev_models[[mm]]$parnames, data_calib=data_gev[[dd]][,"lsl_max"],
+                               priors=priors$gev[[cc]][[mm]], auxiliary=auxiliary)
+      } else {
+        out.deoptim <- DEoptim(neg_log_like_gev, lower=gev_models[[mm]]$bound_lower, upper=gev_models[[mm]]$bound_upper,
+                               DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
+                               parnames=gev_models[[mm]]$parnames, data_calib=data_gev[[dd]][,"lsl_max"], auxiliary=auxiliary)
+      }
       optim_out[[dd]][[cc]][[mm]] <- out.deoptim
     }
   }
@@ -112,11 +135,12 @@ print(paste('Saved DEoptim output as .rds file ', filename.optim, sep=''))
 
 
 ##==============================================================================
-## MLE calibration for GPD parameters...
+## MLE or MAP calibration for GPD parameters...
 ## ... for each model, for each covariate, for each tide gauge site
 
 distr <- 'gpd'
-sim_id <- paste(distr,today, sep="-")
+if (calib_post) {sim_id <- paste(distr,"post",today, sep="_")
+} else {sim_id <- paste(distr,"like",today, sep="_")}
 filename.optim <- paste("../output/optim_",sim_id,".rds", sep="")
 
 # log-likelihood functions (prior and posterior not used here)
@@ -129,7 +153,7 @@ optim_out <- vector("list", length(data_gpd))
 names(optim_out) <- names(data_gpd)
 
 for (dd in 1:length(data_gpd)) {
-  print(paste("Maximum likelihood estimation for GPD models for site ",site_names[dd]," (",dd,"/",length(data_gpd),")...", sep=""))
+  print(paste("Parameter estimation for GPD models for site ",site_names[dd]," (",dd,"/",length(data_gpd),")...", sep=""))
   optim_out[[dd]] <- vector("list", length(names_covariates))
   names(optim_out[[dd]]) <- names_covariates
   for (cc in names_covariates) {
@@ -139,11 +163,16 @@ for (dd in 1:length(data_gpd)) {
     for (mm in 1:nmodel) {
       if (mm > 1) {auxiliary <- trimmed_forcing(data_gpd[[dd]]$year, time_forc, covar_forc)$forcing
       } else {auxiliary <- NULL}
-
-      # initial parameter estimates
-      out.deoptim <- DEoptim(neg_log_like_ppgpd, lower=gpd_models[[mm]]$bound_lower, upper=gpd_models[[mm]]$bound_upper,
-                             DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
-                             parnames=gpd_models[[mm]]$parnames, data_calib=data_gpd[[dd]], auxiliary=auxiliary)
+      if (calib_post) {
+        out.deoptim <- DEoptim(neg_log_post_ppgpd, lower=gpd_models[[mm]]$bound_lower, upper=gpd_models[[mm]]$bound_upper,
+                               DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
+                               parnames=gpd_models[[mm]]$parnames, data_calib=data_gpd[[dd]],
+                               priors=priors$gpd[[cc]], model=mm, auxiliary=auxiliary)
+      } else {
+        out.deoptim <- DEoptim(neg_log_like_ppgpd, lower=gpd_models[[mm]]$bound_lower, upper=gpd_models[[mm]]$bound_upper,
+                               DEoptim.control(NP=NP.deoptim,itermax=niter.deoptim,F=F.deoptim,CR=CR.deoptim,trace=FALSE),
+                               parnames=gpd_models[[mm]]$parnames, data_calib=data_gpd[[dd]], auxiliary=auxiliary)
+      }
       optim_out[[dd]][[cc]][[mm]] <- out.deoptim
     }
   }

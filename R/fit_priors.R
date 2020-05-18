@@ -44,10 +44,8 @@ dt.decluster <- 3       # declustering time-scale (days)
 .niter.deoptim <- 100   # number of DE iterations
 output.dir <- '../input_data/'
 
-#appen <- paste('ppgpd_decl',dt.decluster,'-pot',100*pot.threshold,sep='')
-appen <- ""
-
 filename.many <- '../input_data/tidegauge_processed_manystations_decl3-pot99-annual_10Dec2017.rds'
+priors <- vector("list", 2); names(priors) <- c("gev","gpd")
 
 #
 #===============================================================================
@@ -309,16 +307,16 @@ print('...done.')
 
 # rds -> save single object; the only one we need is 'priors'
 today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gpd_',appen,'_',today,'.rds', sep='')
-filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gpd_',appen,'_',today,'.rds', sep='')
-filename.mles <- paste(output.dir,'surge_MLEs_gpd_',appen,'_',today,'.rds', sep='')
+filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gpd_',today,'.rds', sep='')
+filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gpd_',today,'.rds', sep='')
+filename.mles <- paste(output.dir,'surge_MLEs_gpd_',today,'.rds', sep='')
 
 print(paste('saving priors and DE optim output as .rds files to read and use later...',sep=''))
 
 saveRDS(priors_normalgamma, file=filename.priors.normalgamma)
 saveRDS(priors_uniform, file=filename.priors.uniform)
 saveRDS(deoptim.all, file=filename.mles)
-
+priors$gpd <- priors_normalgamma
 
 print('...done.')
 
@@ -503,15 +501,16 @@ print('...done.')
 
 # rds -> save single object; the only one we need is 'priors'
 today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gev_',appen,'_',today,'.rds', sep='')
-filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gev_',appen,'_',today,'.rds', sep='')
-filename.mles <- paste(output.dir,'surge_MLEs_gev_',appen,'_',today,'.rds', sep='')
+filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gpd_',today,'.rds', sep='')
+filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gpd_',today,'.rds', sep='')
+filename.mles <- paste(output.dir,'surge_MLEs_gpd_',today,'.rds', sep='')
 
 print(paste('saving priors and DE optim output as .rds files to read and use later...',sep=''))
 
 saveRDS(priors_normalgamma, file=filename.priors.normalgamma)
 saveRDS(priors_uniform, file=filename.priors.uniform)
 saveRDS(deoptim.all, file=filename.mles)
+priors$gev <- priors_normalgamma
 
 print('...done.')
 

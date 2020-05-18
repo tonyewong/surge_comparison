@@ -29,8 +29,12 @@ today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename_covariates <- "../input_data/covariates_22Mar2020.rds"
 filename_calibdata_gev  <- "../input_data/processeddata_gev_22Mar2020.rds"
 filename_calibdata_gpd  <- "../input_data/processeddata_gpd_23Mar2020.rds"
-filename_optim_gev <- "../output/optim_gev-22Mar2020.rds"
-filename_optim_gpd <- "../output/optim_gpd-23Mar2020.rds"
+# calibration using likelihood:
+filename_maxlike_gev <- "../output/optim_gev_like_22Mar2020.rds"
+filename_maxlike_gpd <- "../output/optim_gpd_like_23Mar2020.rds"
+# calibration using posterior (score):
+filename_maxpost_gev <- "../output/optim_gev_post_15May2020.rds"
+filename_maxpost_gpd <- "../output/optim_gpd_post_15May2020.rds"
 names_evm <- c("gev", "gpd")
 n_evm <- length(names_evm)
 
@@ -428,7 +432,7 @@ for (gg in names_evm) {for (cc in 1:5) print(paste(gg,covariate_labels[cc],lengt
 # revisit model choices, but eliminate all with xi nonstationary
 best_models_map <- vector("list", 2); names(best_models_map) <- names_evm
 for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics)); names(best_models_map[[gg]]) <- names(metrics)}
-model_choices <- c(1,2,3,5)
+model_choices <- c(1,2,3,5) # eliminate any xi-nonstationary choices
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_map[[gg]][[metric]] <- vector('list', 2); names(best_models_map[[gg]][[metric]]) <- c('covar','model')
