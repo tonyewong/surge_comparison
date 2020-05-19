@@ -1,17 +1,31 @@
 ##==============================================================================
 ## make_projections.R
 ##
+## Takes `parameters` as implicit input, returns rp and rl as implicit output
+## parameters = list of parameters
+## rp = return periods
+## rl = return levels
+##
 ## Questions? Tony Wong (aewsma@rit.edu)
 ##==============================================================================
 
+
+
+##==============================================================================
 ## What return periods and years do you want?
+##===========================================
+
 return_periods <- c(2,5,10,20,50,100,200,500)
 years_proj <- seq(from=2020, to=2099)
 nyear <- length(years_proj)
 nrp <- length(return_periods)
+##==============================================================================
 
 
+
+##==============================================================================
 ## Make projections using each of the models
+##==========================================
 
 # want projections for each site, for each model, for a variety of return periods, for a variety of years, for each simulation in the ensemble
 # Note: set up like this, can reference the year we want as string in 3rd element: rl[[dd]][,,"2050"], e.g.
@@ -119,13 +133,9 @@ for (gg in names_evm) {
     }
   }
 }
+##==============================================================================
 
-## Save return levels object
-today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename.returnlevels <- paste('../output/returnlevels_',today,'.RData', sep='')
-print(paste("Saving return levels data (`rl`) to file",filename.returnlevels))
-save(list=c('rl', 'rp', 'site_names', 'covariates', 'return_periods', 'years_proj',
-            'nsite', 'nmodel', 'nrp', 'nyear', 'gev_models', 'gpd_models', 'data_calib'), file=filename.returnlevels)
+
 
 ##==============================================================================
 ## End

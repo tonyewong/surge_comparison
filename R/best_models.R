@@ -35,29 +35,29 @@ source("likelihood_gpd.R")
 ## station (dim 1), for each covariate (dim 2), for each model (dim 3)
 ##
 
-parameters <- nll <- aic <- bic <- vector('list', n_evm)
-names(parameters) <- names(nll) <- names(aic) <- names(bic) <- names_evm
+parameters_maxlike <- nll <- aic <- bic <- vector('list', n_evm)
+names(parameters_maxlike) <- names(nll) <- names(aic) <- names(bic) <- names_evm
 
 for (gg in names_evm) {
   if (gg=="gev")        {models <- gev_models
   } else if (gg=="gpd") {models <- gpd_models
   } else                {print("ERROR: unrecognized model type")
   }
-  parameters[[gg]] <- vector('list', nmodel)
+  parameters_maxlike[[gg]] <- vector('list', nmodel)
   nll[[gg]] <- aic[[gg]] <- bic[[gg]] <- array(dim=c(nsite,ncovar,nmodel), dimnames=list(site_names, names_covariates, 1:nmodel))
   for (mm in 1:nmodel) {
-    parameters[[gg]][[mm]] <- vector("list", nsite)
-    names(parameters[[gg]][[mm]]) <- site_names
+    parameters_maxlike[[gg]][[mm]] <- vector("list", nsite)
+    names(parameters_maxlike[[gg]][[mm]]) <- site_names
     for (dd in site_names) {
       if (gg=="gev")        {ndata <- nrow(data_calib[[gg]][[dd]]); years <- data_calib[[gg]][[dd]][,"year"]
       } else if (gg=="gpd") {ndata <- data_calib[[gg]][[dd]]$counts_all; years <- data_calib[[gg]][[dd]]$year}
-      parameters[[gg]][[mm]][[dd]] <- mat.or.vec(nr=ncovar, nc=length(models[[mm]]$parnames))
-      rownames(parameters[[gg]][[mm]][[dd]]) <- names_covariates
-      colnames(parameters[[gg]][[mm]][[dd]]) <- models[[mm]]$parnames
+      parameters_maxlike[[gg]][[mm]][[dd]] <- mat.or.vec(nr=ncovar, nc=length(models[[mm]]$parnames))
+      rownames(parameters_maxlike[[gg]][[mm]][[dd]]) <- names_covariates
+      colnames(parameters_maxlike[[gg]][[mm]][[dd]]) <- models[[mm]]$parnames
       for (cc in names_covariates) {
         covar_forc <- covariates[,cc]
         time_forc <- covariates[,"year"]
-        parameters[[gg]][[mm]][[dd]][cc,] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestmem
+        parameters_maxlike[[gg]][[mm]][[dd]][cc,] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestmem
         if (mm > 1) {auxiliary <- trimmed_forcing(years, time_forc, covar_forc)$forcing
         } else {auxiliary <- NULL}
         nll[[gg]][dd,cc,mm] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestval
@@ -67,8 +67,6 @@ for (gg in names_evm) {
     }
   }
 }
-
-save(list=c("nll","aic","bic"), file="../output/comparison_metrics_maxlike.RData")
 ##==============================================================================
 
 
@@ -91,29 +89,29 @@ nsite <- length(site_names)
 ## probability of the parameters as a part of this (prior)
 ##
 
-parameters <- nps <- vector('list', n_evm)
-names(parameters) <- names(nps) <- names_evm
+parameters_maxpost <- nps <- vector('list', n_evm)
+names(parameters_maxpost) <- names(nps) <- names_evm
 
 for (gg in names_evm) {
   if (gg=="gev")        {models <- gev_models
   } else if (gg=="gpd") {models <- gpd_models
   } else                {print("ERROR: unrecognized model type")
   }
-  parameters[[gg]] <- vector('list', nmodel)
+  parameters_maxpost[[gg]] <- vector('list', nmodel)
   nps[[gg]] <- array(dim=c(nsite,ncovar,nmodel), dimnames=list(site_names, names_covariates, 1:nmodel))
   for (mm in 1:nmodel) {
-    parameters[[gg]][[mm]] <- vector("list", nsite)
-    names(parameters[[gg]][[mm]]) <- site_names
+    parameters_maxpost[[gg]][[mm]] <- vector("list", nsite)
+    names(parameters_maxpost[[gg]][[mm]]) <- site_names
     for (dd in site_names) {
       if (gg=="gev")        {ndata <- nrow(data_calib[[gg]][[dd]]); years <- data_calib[[gg]][[dd]][,"year"]
       } else if (gg=="gpd") {ndata <- data_calib[[gg]][[dd]]$counts_all; years <- data_calib[[gg]][[dd]]$year}
-      parameters[[gg]][[mm]][[dd]] <- mat.or.vec(nr=ncovar, nc=length(models[[mm]]$parnames))
-      rownames(parameters[[gg]][[mm]][[dd]]) <- names_covariates
-      colnames(parameters[[gg]][[mm]][[dd]]) <- models[[mm]]$parnames
+      parameters_maxpost[[gg]][[mm]][[dd]] <- mat.or.vec(nr=ncovar, nc=length(models[[mm]]$parnames))
+      rownames(parameters_maxpost[[gg]][[mm]][[dd]]) <- names_covariates
+      colnames(parameters_maxpost[[gg]][[mm]][[dd]]) <- models[[mm]]$parnames
       for (cc in names_covariates) {
         covar_forc <- covariates[,cc]
         time_forc <- covariates[,"year"]
-        parameters[[gg]][[mm]][[dd]][cc,] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestmem
+        parameters_maxpost[[gg]][[mm]][[dd]][cc,] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestmem
         if (mm > 1) {auxiliary <- trimmed_forcing(years, time_forc, covar_forc)$forcing
         } else {auxiliary <- NULL}
         nps[[gg]][dd,cc,mm] <- results[[gg]][[dd]][[cc]][[mm]]$optim$bestval
@@ -121,8 +119,15 @@ for (gg in names_evm) {
     }
   }
 }
+##==============================================================================
 
-save(list=c("nps"), file="../output/comparison_metrics_maxpost.RData")
+
+
+##==============================================================================
+## Save results to an RData file
+##==============================
+
+save(list=c("nll","aic","bic","nps"), file="../output/comparison_metrics.RData")
 ##==============================================================================
 
 
