@@ -551,6 +551,124 @@ for (metric in names(metrics)) {
   }
 }
 
+metric <- "NPS"
+rp_old <- "50"
+present <- 2020
+year <- 2050
+yy <- match(year, years_proj)
+rp_new <- rl_old <- rl_new <- vector("list",length(names_evm))
+names(rp_new) <- names(rl_old) <- names(rl_new) <- names_evm
+for (gg in names_evm) {
+  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+  for (dd in 1:length(site_names)) {
+    cc <- best_models_map[[gg]][[metric]]$covar[dd]
+    mm <- best_models_map[[gg]][[metric]]$model[dd]
+    if (cc==5) {
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
+      rp_new[[gg]][dd] <- as.numeric(rp_old)
+      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
+    } else {
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])
+      rl_new[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,yy]
+    }
+  }
+}
+
+
+##==============================================================================
+## Line plot of return level projections for all covariates and all models, for
+## a given return period, and highlight the projection based on the "best" model
+## choice (covariate and structure). A panel for each site, and a version for
+## each of GEV and GPD
+##======================================
+
+year <- 2050
+yy <- match(year, years_proj)
+
+panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c')),expression(bold('d')),
+                  expression(bold('e')),expression(bold('f')),expression(bold('g')),expression(bold('h')),
+                  expression(bold('i')),expression(bold('j')),expression(bold('k')),expression(bold('l')),
+                  expression(bold('m')),expression(bold('n')),expression(bold('o')),expression(bold('p')),
+                  expression(bold('q')),expression(bold('r')))
+
+for (metric in names(metrics)) {
+  for (gg in names_evm) {
+    label_cnt <- 1
+    pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
+    par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
+    for (dd in idx_long) {
+      ymin <- min(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) < ymin) ymin <- min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
+      ymax <- max(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) > ymax) ymax <- max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
+      ymin <- floor(ymin); ymax <- ceiling(ymax)
+      cc <- best_models_map[[gg]][[metric]]$covar[dd]
+      mm <- best_models_map[[gg]][[metric]]$model[dd]
+      if (cc==5) {cc <- 1; mm <- 1}
+      # actual plots
+      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="gray70", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      grid()
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.75, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, col="black")
+      axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
+      axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
+      #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
+      mtext(side=1, text="Year", line=2.3, cex=0.85)
+      mtext(side=2, text="Height [mm]", line=2.3, cex=0.85)
+      mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=-0.075); label_cnt <- label_cnt + 1
+      mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
+    }
+    plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
+    legend(0, 2, c("best model", covariate_labels[1:4]), lty=c(2,.75,.75,.75,.75), col=c("black", unlist(covariate_colors)), cex=0.85, bty='n')
+    dev.off()
+  }
+}
+
+
+# same, but for all the sites
+panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c')),expression(bold('d')),
+                  expression(bold('e')),expression(bold('f')),expression(bold('g')),expression(bold('h')),
+                  expression(bold('i')),expression(bold('j')),expression(bold('k')),expression(bold('l')),
+                  expression(bold('m')),expression(bold('n')),expression(bold('o')),expression(bold('p')),
+                  expression(bold('q')),expression(bold('r')),expression(bold('s')),expression(bold('t')),
+                  expression(bold('u')),expression(bold('v')),expression(bold('w')),expression(bold('x')),
+                  expression(bold('y')),expression(bold('z')),expression(bold('aa')),expression(bold('bb')),
+                  expression(bold('cc')),expression(bold('dd')),expression(bold('ee')),expression(bold('ff')),
+                  expression(bold('gg')),expression(bold('hh')),expression(bold('ii')),expression(bold('jj')))
+
+for (metric in names(metrics)) {
+  for (gg in names_evm) {
+    label_cnt <- 1
+    pdf(paste("../figures/projections_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=8, height=9, pointsize=11, colormodel='cmyk')
+    par(mfrow=c(6,6), mai=c(.43,.45,.22,.15))
+    for (dd in 1:length(site_names)) {
+      ymin <- min(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) < ymin) ymin <- min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
+      ymax <- max(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) > ymax) ymax <- max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
+      ymin <- floor(ymin); ymax <- ceiling(ymax)
+      cc <- best_models_map[[gg]][[metric]]$covar[dd]
+      mm <- best_models_map[[gg]][[metric]]$model[dd]
+      if (cc==5) {cc <- 1; mm <- 1}
+      # actual plots
+      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="gray70", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      grid()
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.75, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, col="black")
+      axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
+      axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
+      #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
+      mtext(side=1, text="Year", line=2.3, cex=0.85)
+      mtext(side=2, text="Height [mm]", line=2.3, cex=0.85)
+      mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=-0.075); label_cnt <- label_cnt + 1
+      mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
+    }
+    plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
+    legend(0, 2, c("best model", covariate_labels[1:4]), lty=c(2,.75,.75,.75,.75), col=c("black", unlist(covariate_colors)), cex=0.85, bty='n')
+    dev.off()
+  }
+}
+
+##==============================================================================
+
+
 
 ##==============================================================================
 ## Map of new return period at points in future, for the present return level,
@@ -576,48 +694,6 @@ todo
 
 
 
-##==============================================================================
-## Plot of return level projections for all covariates and all models, for a
-## given return period, and highlight the projection based on the "best" model
-## choice (covariate and structure). A panel for each site, and a version for
-## each of GEV and GPD
-##======================================
-
-todo
-
-for (gg in names_evm) {
-
-
-}
-
-##==============================================================================
-
-
-
-
-metric <- "NPS"
-rp_old <- "50"
-present <- 2020
-year <- 2050
-yy <- match(year, years_proj)
-rp_new <- rl_old <- rl_new <- vector("list",length(names_evm))
-names(rp_new) <- names(rl_old) <- names(rl_new) <- names_evm
-for (gg in names_evm) {
-  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
-  for (dd in 1:length(site_names)) {
-    cc <- best_models_map[[gg]][[metric]]$covar[dd]
-    mm <- best_models_map[[gg]][[metric]]$model[dd]
-    if (cc==5) {
-      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
-      rp_new[[gg]][dd] <- as.numeric(rp_old)
-      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
-    } else {
-      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])
-      rl_new[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,yy]
-    }
-  }
-}
 
 # probably want a plot of rl_new[[gg]] - rl_old[[gg]] -- map?
 
@@ -666,38 +742,6 @@ dev.off()
 #cbind(site_names, lats, lons, rp_new$gpd, covariate_labels[best_models_map[[gg]][[metric]]$covar], best_models_map[[gg]][[metric]]$model, num_years)[idx_long,]
 #cbind(site_names, lats, lons, rl_new$gev - rl_old$gev)[order(lons),]cbind(site_names, lats, lons, rl_new$gev - rl_old$gev)[order(lons),]
 
-# OLD CODE
-gr <- .bincode(rp_new, seq(min(rp_new), max(rp_new), len=length(rp_new)), include.lowest = T)
-cols <- c("paleturquoise4", "lightgoldenrod", "firebrick")
-bias <- 4.5
-col <- colorRampPalette(cols, bias=bias)(length(rp_new))[gr]
-
-png("./figures/Netherlands_cost_rcp85p50.png", width = 600, height = 600)
-par(mfrow=c(1,1), mai=c(6,6,.5,.5))
-map("world", fill=TRUE, col="gray85", bg="white", xlim=c(3, 7), ylim=c(51, 54), mar=c(8,7,0,0))
-points(cost[[site]][[rcp]]$p50[,"lon"], cost[[site]][[rcp]]$p50[,"lat"], col=col, cex=2, pch=16)
-points(rot[1], rot[2], col="black", pch=15, lwd=3, cex=1.5); text(rot[1]+0.5, rot[2], pos=1, "Rotterdam", cex=1.3)
-points(ams[1], ams[2], col="black", pch=8, lwd=3, cex=1.5); text(ams[1]+0.5, ams[2]-0.12, pos=1, "Amsterdam", cex=1.3)
-points(hag[1], hag[2], col="black", pch=15, lwd=3, cex=1.5); text(hag[1]-0.62, hag[2], pos=3, "The Hague", cex=1.3)
-points(del[1], del[2], col="black", pch=15, lwd=3, cex=1.5); text(del[1]-0.25, del[2], pos=1, "Delfzijl", cex=1.3)
-mtext(side=1, text='Longitude', line=2.5, cex=1.5)
-mtext(side=2, text='Latitude', line=4.5, cex=1.5)
-mtext(side=3, text='[$B]', line=1, cex=1.5, adj=1.13)
-axis(side=1, at=seq(from=3, to=7, by=0.5), labels=c("3 E", "", "4 E", "", "5 E", "", "6 E", "", "7 E"), cex.axis=1.5)
-axis(side=2, at=seq(from=51, to=54, by=0.5), labels=c("51 N", "", "52 N", "", "53 N", "", "54 N"), las=1, cex.axis=1.5)
-colkey(clim=c(0,200), at=seq(from=0,to=200,by=10), labels=c("0","","20","","40","","60","","80","","100","","120","","140","","160","","180","","200"), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=bias)(length(cost_norm)))
-dev.off()
-
-##==============================================================================
-
-
-
-##==============================================================================
-## Map of model choice based on location
-## (all covariates together? or just one?)
-##======================================
-
-# todo?
 
 ##==============================================================================
 

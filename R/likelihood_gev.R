@@ -1,4 +1,12 @@
-## likelihood.R
+#===============================================================================
+# likelihood_gev.R
+#
+# Likelihood function(s), priors, posterior for generalized extreme value
+# distribution. Parameters may covary with some `auxiliary` time series.
+#
+# Questions? Tony Wong (aewsma@rit.edu)
+#===============================================================================
+
 
 #===============================================================================
 # log(prior) for gev model

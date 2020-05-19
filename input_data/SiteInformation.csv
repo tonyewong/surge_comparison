@@ -1,37 +1,37 @@
-﻿site_name,lat,lon,start_date,end_date,num_years
-DauphinIslandAL,30.25,-88.075,4/1/81,12/31/18,28
-NewLondonCT,41.355,-72.087,6/13/38,12/31/18,70
-LewesDE,38.782,-75.12,2/2/19,12/31/18,68
-ApalachicolaFL,29.727,-84.982,4/2/76,12/31/18,41
-ClearwaterBchFL,27.977,-82.832,1/1/96,12/31/18,23
-FernandinaBeach,30.672,-81.467,1897-05-09,12/31/18,53
-KeyWestFL,24.553,-81.808,1/20/13,12/31/18,102
-MayportFL,30.395,-81.432,4/27/28,11/30/00,68
-NaplesFL,26.13,-81.807,3/5/65,12/31/18,47
-PanamaCityBeach,30.213,-85.88,1/1/93,12/31/18,18
-PensacolaFL,30.403,-87.213,5/2/23,12/31/18,87
-PortCanaveralFL,28.415,-80.593,10/22/94,12/31/18,22
-StPetersburgFL,27.76,-82.627,12/25/46,12/31/18,69
-VirginiaKeyFL,25.732,-80.162,1/29/94,12/31/18,25
-FortPulaskiGA,32.033,-80.902,7/2/35,12/31/18,77
-GrandIsleLA,29.263,-89.957,1/1/80,12/31/18,35
-BostonMA,42.355,-71.052,5/4/21,12/31/18,95
-NantucketMA,41.285,-70.097,2/2/65,12/31/18,48
-WoodsHoleMA,41.523,-70.672,1/2/57,12/31/18,52
-EastportME,44.903,-66.985,9/13/29,12/31/18,72
-PortlandME,43.657,-70.247,3/5/10,12/31/18,94
-DuckPierNC,36.183,-75.74,6/2/78,12/31/18,39
-WilmingtonNC,34.227,-77.953,12/29/35,12/31/18,79
-AtlanticCityNJ,39.355,-74.418,8/20/11,12/31/18,95
-CapeMayNJ,38.968,-74.96,11/22/65,12/31/18,44
-MontaukNY,41.048,-71.96,9/8/47,12/31/18,53
-NewYorkNY,40.7,-74.015,6/2/20,12/31/18,72
-NewportRI,41.505,-71.327,9/11/30,12/31/18,77
-CharlestonSC,32.782,-79.925,1/2/01,12/31/18,94
-CorpusCristiTX,27.58,-97.217,12/2/83,12/31/18,31
-GalvestonPPier,29.287,-94.79,8/22/57,7/19/11,50
-GalvestonPier21,29.31,-94.793,1/2/04,12/31/18,105
-PortIsabelTX,26.06,-97.215,4/2/44,12/31/18,63
-RockportTX,28.022,-97.047,3/2/37,12/31/18,57
-SabinePassNTX,29.73,-93.87,1/29/85,12/31/18,31
-ChesapeakeBBT,36.967,-76.113,1/30/75,12/31/16,41
+﻿site_name,lat,lon,start_date,end_date,num_years,formal
+DauphinIslandAL,30.25,-88.075,4/1/81,12/31/18,28,"Dauphin Island, AL"
+NewLondonCT,41.355,-72.087,6/13/38,12/31/18,70,"New London, CT"
+LewesDE,38.782,-75.12,2/2/19,12/31/18,68,"Lewes, DE"
+ApalachicolaFL,29.727,-84.982,4/2/76,12/31/18,41,"Apalachicola, FL"
+ClearwaterBchFL,27.977,-82.832,1/1/96,12/31/18,23,"Clearwater Beach, FL"
+FernandinaBeach,30.672,-81.467,1897-05-09,12/31/18,53,"Fernandina Beach, FL"
+KeyWestFL,24.553,-81.808,1/20/13,12/31/18,102,"Key West, FL"
+MayportFL,30.395,-81.432,4/27/28,11/30/00,68,"Mayport, FL"
+NaplesFL,26.13,-81.807,3/5/65,12/31/18,47,"Naples, FL"
+PanamaCityBeach,30.213,-85.88,1/1/93,12/31/18,18,"Panama City Beach, FL"
+PensacolaFL,30.403,-87.213,5/2/23,12/31/18,87,"Pensacola, FL"
+PortCanaveralFL,28.415,-80.593,10/22/94,12/31/18,22,"Port Canaveral, FL"
+StPetersburgFL,27.76,-82.627,12/25/46,12/31/18,69,"St. Petersburg, FL"
+VirginiaKeyFL,25.732,-80.162,1/29/94,12/31/18,25,"Virginia Key, FL"
+FortPulaskiGA,32.033,-80.902,7/2/35,12/31/18,77,"Fort Pulaski, GA"
+GrandIsleLA,29.263,-89.957,1/1/80,12/31/18,35,"Grand Isle, LA"
+BostonMA,42.355,-71.052,5/4/21,12/31/18,95,"Boston, MA"
+NantucketMA,41.285,-70.097,2/2/65,12/31/18,48,"Nantucket, MA"
+WoodsHoleMA,41.523,-70.672,1/2/57,12/31/18,52,"Woods Hole, MA"
+EastportME,44.903,-66.985,9/13/29,12/31/18,72,"Eastport, ME"
+PortlandME,43.657,-70.247,3/5/10,12/31/18,94,"Portland, ME"
+DuckPierNC,36.183,-75.74,6/2/78,12/31/18,39,"Duck Pier, NC"
+WilmingtonNC,34.227,-77.953,12/29/35,12/31/18,79,"Wilmington, NC"
+AtlanticCityNJ,39.355,-74.418,8/20/11,12/31/18,95,"Atlantic City, NJ"
+CapeMayNJ,38.968,-74.96,11/22/65,12/31/18,44,"Cape May, NJ"
+MontaukNY,41.048,-71.96,9/8/47,12/31/18,53,"Montauk, NY"
+NewYorkNY,40.7,-74.015,6/2/20,12/31/18,72,"New York, NY"
+NewportRI,41.505,-71.327,9/11/30,12/31/18,77,"Newport, RI"
+CharlestonSC,32.782,-79.925,1/2/01,12/31/18,94,"Charleston, SC"
+CorpusCristiTX,27.58,-97.217,12/2/83,12/31/18,31,"Corpus Cristi, TX"
+GalvestonPPier,29.287,-94.79,8/22/57,7/19/11,50,"Galveston Pleasure Pier, TX"
+GalvestonPier21,29.31,-94.793,1/2/04,12/31/18,105,"Galveston Pier 21, TX"
+PortIsabelTX,26.06,-97.215,4/2/44,12/31/18,63,"Port Isabel, TX"
+RockportTX,28.022,-97.047,3/2/37,12/31/18,57,"Rockport, TX"
+SabinePassNTX,29.73,-93.87,1/29/85,12/31/18,31,"Sabine Pass, TX"
+ChesapeakeBBT,36.967,-76.113,1/30/75,12/31/16,41,"Chesapeake, VA"
