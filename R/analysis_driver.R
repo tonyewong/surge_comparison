@@ -73,6 +73,17 @@ for (dd in 1:nsite) {num_years[dd] <- nrow(data_calib$gev[[dd]])}
 idx_short <- which(num_years <= median(num_years)) # note: none of the stations (as of this writing) have num_years = median(num_years) (55 years)
 idx_long <- which(num_years >= median(num_years))
 
+## the most panel labels you might need - one for each of the 36 sites
+panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c')),expression(bold('d')),
+                  expression(bold('e')),expression(bold('f')),expression(bold('g')),expression(bold('h')),
+                  expression(bold('i')),expression(bold('j')),expression(bold('k')),expression(bold('l')),
+                  expression(bold('m')),expression(bold('n')),expression(bold('o')),expression(bold('p')),
+                  expression(bold('q')),expression(bold('r')),expression(bold('s')),expression(bold('t')),
+                  expression(bold('u')),expression(bold('v')),expression(bold('w')),expression(bold('x')),
+                  expression(bold('y')),expression(bold('z')),expression(bold('aa')),expression(bold('bb')),
+                  expression(bold('cc')),expression(bold('dd')),expression(bold('ee')),expression(bold('ff')),
+                  expression(bold('gg')),expression(bold('hh')),expression(bold('ii')),expression(bold('jj')))
+
 
 ## get to the good stuff!
 
@@ -101,7 +112,7 @@ covariate_breaks_long <- sort(c(seq(from=0.999, to=4.999, by=1), seq(from=1.25, 
 
 pdf('../figures/covariate_choice.pdf', width=5.5, height=8, pointsize=11, colormodel='cmyk')
 par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
-panel_labels <- c(expression('(a)'),expression('(b)'),expression('(c)'),expression('(d)'),expression('(e)'),expression('(f)'),expression('(g)'),expression('(h)')); label_cnt <- 1
+label_cnt <- 1
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_datlen$short[[gg]][[metric]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]][[metric]]) <- site_names[idx_short]
@@ -162,7 +173,7 @@ model_breaks <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.4, to=8.4, by=1))
 
 pdf('../figures/model_choice.pdf', width=6, height=8, pointsize=11, colormodel='cmyk')
 par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
-panel_labels <- c(expression('(a)'),expression('(b)'),expression('(c)'),expression('(d)'),expression('(e)'),expression('(f)'),expression('(g)'),expression('(h)')); label_cnt <- 1
+label_cnt <- 1
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_datlen$short[[gg]][[metric]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]][[metric]]) <- site_names[idx_short]
@@ -178,8 +189,8 @@ for (metric in names(metrics)) {
     }
     hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,26), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
     grid()
-    hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     if (label_cnt==1) {legend(0.6,25,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
     axis(1, at=1:8, labels=model_labels[[gg]])
     axis(2, at=seq(from=0,to=30,by=5), labels=seq(from=0,to=30,by=5), las=1)
@@ -223,7 +234,7 @@ for (cc in names_covariates) {
 
   pdf(paste('../figures/model_choice_',cc,'.pdf',sep=''), width=6, height=8, pointsize=11, colormodel='cmyk')
   par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
-  panel_labels <- c(expression('(a)'),expression('(b)'),expression('(c)'),expression('(d)'),expression('(e)'),expression('(f)'),expression('(g)'),expression('(h)')); label_cnt <- 1
+  label_cnt <- 1
   for (metric in names(metrics)) {
     for (gg in names_evm) {
       best_models_datlen$short[[gg]][[metric]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]][[metric]]) <- site_names[idx_short]
@@ -237,8 +248,8 @@ for (cc in names_covariates) {
       }
       hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, xlim=c(0.5,8.5), lty=5, ylim=c(0,35), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
       grid()
-      hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-      hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       if (label_cnt==1) {legend(0.6,34,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
       axis(1, at=1:8, labels=model_labels[[gg]])
       axis(2, at=seq(from=0,to=35,by=5), labels=seq(from=0,to=35,by=5), las=1)
@@ -261,7 +272,7 @@ for (cc in names_covariates) {
 ## NB: this version uses one covariate at a time - loops over them.
 ##============================
 
-ymaxs <- c(28,20,33,35); names(ymaxs) <- names(metrics)
+ymaxs <- c(30,20,33,35); names(ymaxs) <- names(metrics)
 
 for (metric in names(metrics)) {
   model_choices <- c(1,2,3,4,5,6,7,8)
@@ -274,10 +285,7 @@ for (metric in names(metrics)) {
 
   pdf(paste('../figures/model_choice_',metric,'.pdf', sep=''), width=6.5, height=9, pointsize=11, colormodel='cmyk')
   par(mfrow=c(5,2), mai=c(.43,.65,.22,.1))
-
-  panel_labels <- c(expression('(a)'),expression('(b)'),expression('(c)'),expression('(d)'),
-                    expression('(e)'),expression('(f)'),expression('(g)'),expression('(h)'),
-                    expression('(i)'),expression('(j)')); label_cnt <- 1
+  label_cnt <- 1
 
   # first, do the pooled one
   best_models_datlen <- vector("list", 3); names(best_models_datlen) <- c("short", "long", "all")
@@ -297,8 +305,8 @@ for (metric in names(metrics)) {
     }
     hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
     grid()
-    hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     if (label_cnt==1) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
     axis(1, at=1:8, labels=model_labels[[gg]])
     axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
@@ -322,8 +330,8 @@ for (metric in names(metrics)) {
       }
       hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
       grid()
-      hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-      hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       if (label_cnt==1) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
       axis(1, at=1:8, labels=model_labels[[gg]])
       axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
@@ -335,102 +343,6 @@ for (metric in names(metrics)) {
   }
   dev.off()
 }
-
-##==============================================================================
-
-
-
-##==============================================================================
-## Compare model choices based
-## on number of parameters and amount of available data
-## NB: this version uses one covariate at a time -- same as above, but with negative posterior score
-##============================
-
-model_choices <- c(1,2,3,4,5,6,7,8)
-model_labels <- vector('list', 2); names(model_labels) <- names_evm
-model_labels$gev <- c("none",expression(mu),expression(sigma),expression(xi),expression(mu * ', ' * sigma),expression(mu * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * mu * ', ' * sigma * ', ' * xi))
-model_labels$gpd <- c("none",expression(lambda),expression(sigma),expression(xi),expression(lambda * ', ' * sigma),expression(lambda * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * lambda * ', ' * sigma * ', ' * xi))
-model_breaks_short <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.001, to=8.001, by=1)))
-model_breaks_long <- sort(c(seq(from=0.999, to=7.999, by=1), seq(from=1.4, to=8.4, by=1)))
-model_breaks <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.4, to=8.4, by=1)))
-
-pdf('../figures/model_choice_nps.pdf', width=6.5, height=9, pointsize=11, colormodel='cmyk')
-par(mfrow=c(5,2), mai=c(.43,.65,.22,.1))
-
-panel_labels <- c(expression('(a)'),expression('(b)'),expression('(c)'),expression('(d)'),
-                  expression('(e)'),expression('(f)'),expression('(g)'),expression('(h)'),
-                  expression('(i)'),expression('(j)')); label_cnt <- 1
-metric <- "NPS"
-# first, do the pooled one
-best_models_datlen <- vector("list", 3); names(best_models_datlen) <- c("short", "long", "all")
-for (dl in 1:3) {best_models_datlen[[dl]] <- vector("list", length(names_evm)); names(best_models_datlen[[dl]]) <- names_evm}
-for (gg in names_evm) {
-  best_models_datlen$short[[gg]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]]) <- site_names[idx_short]
-  best_models_datlen$long[[gg]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]]) <- site_names[idx_long]
-  best_models_datlen$all[[gg]] <- rep(NA, nsite); names(best_models_datlen$all[[gg]]) <- site_names
-  for (dd in site_names) {
-      mat <- metrics[[metric]][[gg]][dd,,model_choices]
-      idx_min <- which.min(mat)
-      idx_row <- idx_min%%nrow(mat)
-      if(idx_row==0) {idx_row <- nrow(mat)}
-      idx_col <- which.min(as.vector(mat[idx_row,]))
-      best_models_datlen$all[[gg]][dd] <- idx_col
-      if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
-  }
-  hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,18), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
-  grid()
-  hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-  hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-  if (label_cnt==1) {legend(0.6,18.5,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-  axis(1, at=1:8, labels=model_labels[[gg]])
-  axis(2, at=seq(from=0,to=30,by=5), labels=seq(from=0,to=30,by=5), las=1)
-  mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
-  mtext(side=2, text="# stations", line=2.3, cex=0.85)
-  if (gg=="gev") {mtext(side=2, text="All covariates", line=4, cex=0.85)}
-  if(gg=="gev") {mtext(side=3, text="GEV", line=.6, cex=0.85)} else {mtext(side=3, text="GPD", line=.6, cex=0.85)}
-  mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
-}
-# then cycle through all the covariates
-for (cc in names_covariates) {
-  for (gg in names_evm) {
-    best_models_datlen$short[[gg]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]]) <- site_names[idx_short]
-    best_models_datlen$long[[gg]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]]) <- site_names[idx_long]
-    best_models_datlen$all[[gg]] <- rep(NA, nsite); names(best_models_datlen$all[[gg]]) <- site_names
-    for (dd in site_names) {
-      mat <- metrics[[metric]][[gg]][dd,cc,model_choices]
-      idx_col <- which.min(mat)
-      best_models_datlen$all[[gg]][dd] <- idx_col
-      if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
-    }
-    hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,18), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
-    grid()
-    hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="white", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray50", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    if (label_cnt==1) {legend(0.6,18.5,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-    axis(1, at=1:8, labels=model_labels[[gg]])
-    axis(2, at=seq(from=0,to=30,by=5), labels=seq(from=0,to=30,by=5), las=1)
-    mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
-    mtext(side=2, text="# stations", line=2.3, cex=0.85)
-    if (gg=="gev") {mtext(side=2, text=covariate_labels[match(cc,names_covariates)], line=4, cex=0.85)}
-    mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
-  }
-}
-dev.off()
-
-##==============================================================================
-
-
-
-##==============================================================================
-## Compare return levels based
-## on model choice
-##============================
-
-#> dim(rl$gev$FernandinaBeach$time)
-#[1]  8  8 80
-# 1st = return period (2/5/10/20/50/100/200/500) ; 2nd = model structure ; 3rd = year (2020:2099)
-
-todo
 
 ##==============================================================================
 
@@ -491,7 +403,7 @@ for (metric in names(metrics)) {
 
   png(paste("../figures/covariate_choice_map_",metric,".png", sep=""), width=500, height=760)
   par(mfrow=c(2,1))
-
+  label_cnt <- 1
   # GEV model structures
   gg <- "gev"
   map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
@@ -499,13 +411,13 @@ for (metric in names(metrics)) {
   for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
   mtext(side=1, text='Longitude', line=2.0, cex=1)
   mtext(side=2, text='Latitude', line=3.8, cex=1)
-  mtext(side=3, text=expression('(a)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GEV', line=0.1, cex=1.3)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GEV', line=0.1, cex=1.3)
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
   legend(-74, 32, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
          col=c(covariate_colors$Stat,covariate_colors$Time,covariate_colors$NAO,covariate_colors$Temp,covariate_colors$`Sea level`),
          pt.cex=2, cex=1, bty='n')
-
   # GPD model structures
   gg <- "gpd"
   map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
@@ -513,10 +425,10 @@ for (metric in names(metrics)) {
   for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
   mtext(side=1, text='Longitude', line=2.0, cex=1)
   mtext(side=2, text='Latitude', line=3.8, cex=1)
-  mtext(side=3, text=expression('(b)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GPD', line=0.1, cex=1.3)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GPD', line=0.1, cex=1.3)
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
-
   dev.off()
 }
 
@@ -586,12 +498,6 @@ for (gg in names_evm) {
 year <- 2050
 yy <- match(year, years_proj)
 
-panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c')),expression(bold('d')),
-                  expression(bold('e')),expression(bold('f')),expression(bold('g')),expression(bold('h')),
-                  expression(bold('i')),expression(bold('j')),expression(bold('k')),expression(bold('l')),
-                  expression(bold('m')),expression(bold('n')),expression(bold('o')),expression(bold('p')),
-                  expression(bold('q')),expression(bold('r')))
-
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     label_cnt <- 1
@@ -605,10 +511,10 @@ for (metric in names(metrics)) {
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
-      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="gray70", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.75, col=covariate_colors[[match(c,names_covariates)]])}}
-      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, col="black")
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
       #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
@@ -618,22 +524,13 @@ for (metric in names(metrics)) {
       mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
     }
     plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
-    legend(0, 2, c("best model", covariate_labels[1:4]), lty=c(2,.75,.75,.75,.75), col=c("black", unlist(covariate_colors)), cex=0.85, bty='n')
+    legend(0, 2, c("best model", covariate_labels[1:4]), lwd=c(2,1.3,1.3,1.3,1.3), col=c("black", unlist(covariate_colors)), cex=1.3, bty='n')
     dev.off()
   }
 }
 
 
 # same, but for all the sites
-panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c')),expression(bold('d')),
-                  expression(bold('e')),expression(bold('f')),expression(bold('g')),expression(bold('h')),
-                  expression(bold('i')),expression(bold('j')),expression(bold('k')),expression(bold('l')),
-                  expression(bold('m')),expression(bold('n')),expression(bold('o')),expression(bold('p')),
-                  expression(bold('q')),expression(bold('r')),expression(bold('s')),expression(bold('t')),
-                  expression(bold('u')),expression(bold('v')),expression(bold('w')),expression(bold('x')),
-                  expression(bold('y')),expression(bold('z')),expression(bold('aa')),expression(bold('bb')),
-                  expression(bold('cc')),expression(bold('dd')),expression(bold('ee')),expression(bold('ff')),
-                  expression(bold('gg')),expression(bold('hh')),expression(bold('ii')),expression(bold('jj')))
 
 for (metric in names(metrics)) {
   for (gg in names_evm) {
@@ -661,10 +558,25 @@ for (metric in names(metrics)) {
       mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
     }
     plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
-    legend(0, 2, c("best model", covariate_labels[1:4]), lty=c(2,.75,.75,.75,.75), col=c("black", unlist(covariate_colors)), cex=0.85, bty='n')
+    legend(0, 2, c("best model", covariate_labels[1:4]), lwd=c(2,1.3,1.3,1.3,1.3), col=c("black", unlist(covariate_colors)), cex=1.3, bty='n')
     dev.off()
   }
 }
+
+##==============================================================================
+
+
+
+##==============================================================================
+## Compare return levels based
+## on model choice
+##============================
+
+#> dim(rl$gev$FernandinaBeach$time)
+#[1]  8  8 80
+# 1st = return period (2/5/10/20/50/100/200/500) ; 2nd = model structure ; 3rd = year (2020:2099)
+
+todo
 
 ##==============================================================================
 
