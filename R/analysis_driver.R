@@ -11,6 +11,7 @@ rm(list=ls())
 library(extRemes)
 library(Bolstad)
 library(plot3D)
+library(maps)
 
 if(Sys.info()['user']=='tony') {
   # Tony's local machine (if you aren't me, you almost certainly need to change this...)
@@ -110,7 +111,7 @@ covariate_breaks <- sort(c(seq(from=0.75, to=4.75, by=1), seq(from=1.25, to=5.25
 covariate_breaks_short <- sort(c(seq(from=0.75, to=4.75, by=1), seq(from=1.001, to=5.001, by=1)))
 covariate_breaks_long <- sort(c(seq(from=0.999, to=4.999, by=1), seq(from=1.25, to=5.25, by=1)))
 
-pdf('../figures/covariate_choice.pdf', width=5.5, height=8, pointsize=11, colormodel='cmyk')
+pdf('../figures/covariate_choice_v.pdf', width=5.5, height=8, pointsize=11, colormodel='cmyk')
 par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
 label_cnt <- 1
 for (metric in names(metrics)) {
@@ -138,6 +139,48 @@ for (metric in names(metrics)) {
     mtext(side=1, text="Covariate", line=2.3, cex=0.85)
     mtext(side=2, text="# stations", line=2.3, cex=0.85)
     mtext(side=3, text=metric, cex=0.85)
+    mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
+  }
+}
+dev.off()
+
+h_offset <- 0.025
+pdf('../figures/covariate_choice_h.pdf', width=7.5, height=3.5, pointsize=11, colormodel='cmyk')
+par(mfrow=c(2,4))
+label_cnt <- 1
+for (gg in names_evm) {
+  for (metric in names(metrics)) {
+    if (label_cnt==1) {mai_panel <- c(.36, .52, .2, 0)  # .45+.08 = .53 total width; .5+.2 = .7 total height
+    } else if (label_cnt==5) {mai_panel <- c(.5, .52, .08, 0)
+    } else {mai_panel[2] <- mai_panel[2] - h_offset; mai_panel[4] <- mai_panel[4] + h_offset}
+    par(mai=mai_panel)
+    best_models_datlen$short[[gg]][[metric]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]][[metric]]) <- site_names[idx_short]
+    best_models_datlen$long[[gg]][[metric]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]][[metric]]) <- site_names[idx_long]
+    best_models_all[[gg]][[metric]] <- rep(NA, nsite); names(best_models_all[[gg]][[metric]]) <- site_names
+    for (dd in site_names) {
+      mat <- metrics[[metric]][[gg]][dd,,model_choices]
+      idx_min <- which.min(mat)
+      idx_row <- idx_min%%nrow(mat)
+      if(idx_row==0) {idx_row <- nrow(mat)}
+      idx_col <- which.min(as.vector(mat[idx_row,]))
+      if(idx_col==1) {idx_row <- 5} # stationary model
+      best_models_all[[gg]][[metric]][dd] <- idx_row
+      if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_row} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_row}
+    }
+    hist(best_models_all[[gg]][[metric]], breaks=covariate_breaks, freq=TRUE, xlim=c(0.5,5.5), ylim=c(0,25), main="", lty=5, xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    grid()
+    hist(best_models_datlen$short[[gg]][[metric]], breaks=covariate_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    hist(best_models_datlen$long[[gg]][[metric]], breaks=covariate_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    if (label_cnt==1) {legend(0.6,25,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+    axis(1, at=c(1,3,5), label=rep("",3), tck = -0.03); axis(1, at=c(1,3,5), labels=covariate_labels[c(1,3,5)], line=-0.7, lwd=0, cex.axis=0.9)
+    axis(1, at=c(2,4), label=rep("",2), tck = -0.12); axis(1, at=c(2,4), labels=covariate_labels[c(2,4)], line=0.1, lwd=0, cex.axis=0.9)
+    axis(2, at=seq(from=0,to=30,by=5), labels=rep("",length(seq(from=0,to=30,by=5))), tck=-0.03)
+    axis(2, at=seq(from=0,to=30,by=5), labels=seq(from=0,to=30,by=5), line=-0.5, las=1, lwd=0)
+    if (label_cnt>=5) mtext(side=1, text="Covariate", line=2.5, cex=0.85)
+    if (label_cnt==1 | label_cnt==5) mtext(side=2, text="# stations", line=1.7, cex=0.85)
+    if (label_cnt==1) mtext(side=2, text="GEV", line=3.1, cex=0.85)
+    if (label_cnt==5) mtext(side=2, text="GPD", line=3.1, cex=0.85)
+    if (label_cnt<=4) mtext(side=3, text=metric, cex=0.85)
     mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
   }
 }
@@ -399,9 +442,7 @@ for (metric in names(metrics)) {
 
   ## Make a plot
 
-  library(maps)
-
-  png(paste("../figures/covariate_choice_map_",metric,".png", sep=""), width=500, height=760)
+  png(paste("../figures/covariate_choice_map_",metric,"_v.png", sep=""), width=500, height=760)
   par(mfrow=c(2,1))
   label_cnt <- 1
   # GEV model structures
@@ -430,7 +471,37 @@ for (metric in names(metrics)) {
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
   dev.off()
+  png(paste("../figures/covariate_choice_map_",metric,"_h.png", sep=""), width=800, height=500)
+  par(mfrow=c(1,2))
+  label_cnt <- 1
+  # GEV model structures
+  gg <- "gev"
+  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0))
+  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0), add=TRUE)
+  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
+  mtext(side=1, text='Longitude', line=2.0, cex=1)
+  mtext(side=2, text='Latitude', line=3.8, cex=1)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GEV', line=0.1, cex=1.3)
+  axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
+  axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
+  legend(-75, 34.5, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
+         col=c(covariate_colors$Stat,covariate_colors$Time,covariate_colors$NAO,covariate_colors$Temp,covariate_colors$`Sea level`),
+         pt.cex=2, cex=1, bty='n')
+  # GPD model structures
+  gg <- "gpd"
+  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0))
+  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0), add=TRUE)
+  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
+  mtext(side=1, text='Longitude', line=2.1, cex=1)
+  mtext(side=2, text='Latitude', line=3.6, cex=1)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GPD', line=0.1, cex=1.3)
+  axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
+  axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
+  dev.off()
 }
+
 
 ## for the text, how many of each covariate choice are there?
 for (gg in names_evm) {for (cc in 1:5) print(paste(gg,covariate_labels[cc],length(covariate_choices_site[[gg]][[cc]])))}

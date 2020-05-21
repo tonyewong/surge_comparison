@@ -19,6 +19,8 @@ filename.priors.uniform.gpd <- "../surge_priors_uniform_gpd_15May2020.rds"
 
 todo
 
+include the hindcast and projections for covariate time series
+
 ##==============================================================================
 ## End
 ##==============================================================================
