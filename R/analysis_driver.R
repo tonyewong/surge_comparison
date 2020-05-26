@@ -471,32 +471,32 @@ for (metric in names(metrics)) {
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
   dev.off()
-  png(paste("../figures/covariate_choice_map_",metric,"_h.png", sep=""), width=800, height=500)
+  png(paste("../figures/covariate_choice_map_",metric,"_h.png", sep=""), width=10, height=6, units="in", res=300, pointsize=11)
   par(mfrow=c(1,2))
   label_cnt <- 1
   # GEV model structures
   gg <- "gev"
-  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0))
-  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0), add=TRUE)
-  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
+  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,10,0,0))
+  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,10,0,0), add=TRUE)
+  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=1.5, pch=16)}
   mtext(side=1, text='Longitude', line=2.0, cex=1)
   mtext(side=2, text='Latitude', line=3.8, cex=1)
-  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
-  mtext(side=3, text='GEV', line=0.1, cex=1.3)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GEV', line=0.1, cex=1)
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
-  legend(-75, 34.5, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
+  legend(-76, 35.5, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
          col=c(covariate_colors$Stat,covariate_colors$Time,covariate_colors$NAO,covariate_colors$Temp,covariate_colors$`Sea level`),
-         pt.cex=2, cex=1, bty='n')
+         pt.cex=1.5, cex=1, bty='n')
   # GPD model structures
   gg <- "gpd"
-  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0))
-  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,7.5,0,0), add=TRUE)
-  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=2, pch=16)}
+  map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,10,0,0))
+  map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-103.5, -65.5), ylim=c(22.5, 47.5), mar=c(4,10,0,0), add=TRUE)
+  for (cc in 1:5) {points(lons[covariate_choices_site[[gg]][[cc]]], lats[covariate_choices_site[[gg]][[cc]]], col=covariate_colors[[cc]], cex=1.5, pch=16)}
   mtext(side=1, text='Longitude', line=2.1, cex=1)
   mtext(side=2, text='Latitude', line=3.6, cex=1)
-  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1.3, adj=0); label_cnt <- label_cnt + 1
-  mtext(side=3, text='GPD', line=0.1, cex=1.3)
+  mtext(side=3, text=panel_labels[label_cnt], line=0.1, cex=1, adj=0); label_cnt <- label_cnt + 1
+  mtext(side=3, text='GPD', line=0.1, cex=1)
   axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
   axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
   dev.off()
@@ -534,26 +534,42 @@ for (metric in names(metrics)) {
   }
 }
 
+## calculated return periods and levels are the mean of a 21-year moving window
+## average, centered on the year in question
 metric <- "NPS"
 rp_old <- "50"
 present <- 2020
 year <- 2050
-yy <- match(year, years_proj)
-rp_new <- rl_old <- rl_new <- vector("list",length(names_evm))
-names(rp_new) <- names(rl_old) <- names(rl_new) <- names_evm
+either_side <- 10 # window width is 2*either_side + 1
+yi <- match(year, years_proj)
+rp_new <- rl_old <- rl_new <- rl_smoothed <- vector("list",length(names_evm))
+names(rp_new) <- names(rl_old) <- names(rl_new) <- names(rl_smoothed) <- names_evm
 for (gg in names_evm) {
   rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+  rl_smoothed[[gg]] <- vector('list', length(site_names)); names(rl_smoothed[[gg]]) <- site_names
   for (dd in 1:length(site_names)) {
     cc <- best_models_map[[gg]][[metric]]$covar[dd]
     mm <- best_models_map[[gg]][[metric]]$model[dd]
+    rl_smoothed[[gg]][[dd]] <- vector("list", length(names_covariates)); names(rl_smoothed[[gg]][[dd]]) <- names_covariates
     if (cc==5) {
+      # stationary model, no moving average needed here
       rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
       rp_new[[gg]][dd] <- as.numeric(rp_old)
       rl_new[[gg]][dd] <- rl_old[[gg]][dd]
     } else {
+      # nonstationary model, use moving average
       rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yy-10):(yy+10)])
-      rl_new[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,yy]
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+    }
+    for (c in names_covariates) {
+      rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
+      for (yy in present:year) {
+        yi2 <- match(yy, years_proj)
+        for (m in 1:nmodel) {
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+        }
+      }
     }
   }
 }
@@ -567,7 +583,8 @@ for (gg in names_evm) {
 ##======================================
 
 year <- 2050
-yy <- match(year, years_proj)
+yi <- match(year, years_proj)
+yi_present <- match(present, years_proj)
 
 for (metric in names(metrics)) {
   for (gg in names_evm) {
@@ -575,17 +592,16 @@ for (metric in names(metrics)) {
     pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
     par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
     for (dd in idx_long) {
-      ymin <- min(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) < ymin) ymin <- min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
-      ymax <- max(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) > ymax) ymax <- max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
-      ymin <- floor(ymin); ymax <- ceiling(ymax)
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
-      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
-      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2.5, col="black")
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
       #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
@@ -606,20 +622,19 @@ for (metric in names(metrics)) {
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     label_cnt <- 1
-    pdf(paste("../figures/projections_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=8, height=9, pointsize=11, colormodel='cmyk')
-    par(mfrow=c(6,6), mai=c(.43,.45,.22,.15))
+    pdf(paste("../figures/projections_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=12, height=13, pointsize=11, colormodel='cmyk')
+    par(mfrow=c(7,6), mai=c(.43,.45,.22,.15))
     for (dd in 1:length(site_names)) {
-      ymin <- min(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) < ymin) ymin <- min(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
-      ymax <- max(rl[[gg]][[dd]][[1]][rp_old,,1:yy], na.rm=TRUE); for (c in names_covariates) {if (max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE) > ymax) ymax <- max(rl[[gg]][[dd]][[c]][rp_old,,1:yy], na.rm=TRUE)}
-      ymin <- floor(ymin); ymax <- ceiling(ymax)
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
-      plot(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, type='l', col="gray70", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj, rl[[gg]][[dd]][[c]][rp_old, m, ], lwd=0.75, col=covariate_colors[[match(c,names_covariates)]])}}
-      lines(years_proj, rl[[gg]][[dd]][[cc]][rp_old, mm, ], lwd=2, col="black")
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
       #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
