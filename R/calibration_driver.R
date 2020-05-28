@@ -64,7 +64,7 @@ if (do_data_processing) {
   covariates <- readRDS("../input_data/covariates_22Mar2020.rds")
 }
 site_names <- names(data_gev)
-names_covariates <- colnames(covariates)[2:5]
+names_covariates <- colnames(covariates)[2:ncol(covariates)]
 ##==============================================================================
 
 

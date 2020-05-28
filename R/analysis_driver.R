@@ -649,97 +649,225 @@ for (metric in names(metrics)) {
   }
 }
 
-##==============================================================================
+
+## Numbers for paper:
+# Key West
+metric <- "NPS"; gg <- "gpd"; dd <- "KeyWestFL"
+cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
+print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,])))
+# Boston
+metric <- "NPS"; gg <- "gpd"; dd <- "BostonMA"
+cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
+print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,])))
 
 
+## calculated return periods and levels are the mean of a 21-year moving window
+## average, centered on the year in question
+metric <- "NPS"
+rp_old <- "50"
+present <- 2020
+year <- 2050
+either_side <- 10 # window width is 2*either_side + 1
+yi <- match(year, years_proj)
+rp_new <- rl_old <- rl_new <- rl_smoothed <- vector("list",length(names_evm))
+names(rp_new) <- names(rl_old) <- names(rl_new) <- names(rl_smoothed) <- names_evm
+for (gg in names_evm) {
+  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+  rl_smoothed[[gg]] <- vector('list', length(site_names)); names(rl_smoothed[[gg]]) <- site_names
+  for (dd in 1:length(site_names)) {
+    cc <- best_models_map[[gg]][[metric]]$covar[dd]
+    mm <- best_models_map[[gg]][[metric]]$model[dd]
+    rl_smoothed[[gg]][[dd]] <- vector("list", length(names_covariates)); names(rl_smoothed[[gg]][[dd]]) <- names_covariates
+    if (cc==5) {
+      # stationary model, no moving average needed here
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
+      rp_new[[gg]][dd] <- as.numeric(rp_old)
+      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
+    } else {
+      # nonstationary model, use moving average
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+    }
+    for (c in names_covariates) {
+      rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
+      for (yy in present:year) {
+        yi2 <- match(yy, years_proj)
+        for (m in 1:nmodel) {
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+        }
+      }
+    }
+  }
+}
 
-##==============================================================================
-## Compare return levels based
-## on model choice
-##============================
 
-#> dim(rl$gev$FernandinaBeach$time)
-#[1]  8  8 80
-# 1st = return period (2/5/10/20/50/100/200/500) ; 2nd = model structure ; 3rd = year (2020:2099)
-
-todo
-
-##==============================================================================
-
-
-
-##==============================================================================
-## Map of new return period at points in future, for the present return level,
-## based on "best" model choice (covariate and structure)
-## for each site, for each of GEV and GPD
 ##======================================
+## Same, but for 100-year return period
 
-todo
+## calculated return periods and levels are the mean of a 21-year moving window
+## average, centered on the year in question
+metric <- "NPS"
+rp_old <- "100"
+present <- 2020
+year <- 2050
+either_side <- 10 # window width is 2*either_side + 1
+yi <- match(year, years_proj)
+rp_new <- rl_old <- rl_new <- rl_smoothed <- vector("list",length(names_evm))
+names(rp_new) <- names(rl_old) <- names(rl_new) <- names(rl_smoothed) <- names_evm
+for (gg in names_evm) {
+  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+  rl_smoothed[[gg]] <- vector('list', length(site_names)); names(rl_smoothed[[gg]]) <- site_names
+  for (dd in 1:length(site_names)) {
+    cc <- best_models_map[[gg]][[metric]]$covar[dd]
+    mm <- best_models_map[[gg]][[metric]]$model[dd]
+    rl_smoothed[[gg]][[dd]] <- vector("list", length(names_covariates)); names(rl_smoothed[[gg]][[dd]]) <- names_covariates
+    if (cc==5) {
+      # stationary model, no moving average needed here
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
+      rp_new[[gg]][dd] <- as.numeric(rp_old)
+      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
+    } else {
+      # nonstationary model, use moving average
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+    }
+    for (c in names_covariates) {
+      rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
+      for (yy in present:year) {
+        yi2 <- match(yy, years_proj)
+        for (m in 1:nmodel) {
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+        }
+      }
+    }
+  }
+}
 
-##==============================================================================
+year <- 2050
+yi <- match(year, years_proj)
+yi_present <- match(present, years_proj)
+
+for (metric in names(metrics)) {
+  for (gg in names_evm) {
+    label_cnt <- 1
+    pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
+    par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
+    for (dd in idx_long) {
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      cc <- best_models_map[[gg]][[metric]]$covar[dd]
+      mm <- best_models_map[[gg]][[metric]]$model[dd]
+      if (cc==5) {cc <- 1; mm <- 1}
+      # actual plots
+      plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      grid()
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
+      axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
+      axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
+      #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
+      mtext(side=1, text="Year", line=2.3, cex=0.85)
+      mtext(side=2, text="Height [mm]", line=2.3, cex=0.85)
+      mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=-0.075); label_cnt <- label_cnt + 1
+      mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
+    }
+    plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
+    legend(0, 2, c("best model", covariate_labels[1:4]), lwd=c(2,1.3,1.3,1.3,1.3), col=c("black", unlist(covariate_colors)), cex=1.3, bty='n')
+    dev.off()
+  }
+}
 
 
-
-##==============================================================================
-## Map of new return level at points in future, for a given return period,
-## based on "best" model choice (covariate and structure)
-## for each site, for each of GEV and GPD
 ##======================================
+## Same, but for 10-year return period
 
-todo
+## calculated return periods and levels are the mean of a 21-year moving window
+## average, centered on the year in question
+metric <- "NPS"
+rp_old <- "10"
+present <- 2020
+year <- 2050
+either_side <- 10 # window width is 2*either_side + 1
+yi <- match(year, years_proj)
+rp_new <- rl_old <- rl_new <- rl_smoothed <- vector("list",length(names_evm))
+names(rp_new) <- names(rl_old) <- names(rl_new) <- names(rl_smoothed) <- names_evm
+for (gg in names_evm) {
+  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
+  rl_smoothed[[gg]] <- vector('list', length(site_names)); names(rl_smoothed[[gg]]) <- site_names
+  for (dd in 1:length(site_names)) {
+    cc <- best_models_map[[gg]][[metric]]$covar[dd]
+    mm <- best_models_map[[gg]][[metric]]$model[dd]
+    rl_smoothed[[gg]][[dd]] <- vector("list", length(names_covariates)); names(rl_smoothed[[gg]][[dd]]) <- names_covariates
+    if (cc==5) {
+      # stationary model, no moving average needed here
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
+      rp_new[[gg]][dd] <- as.numeric(rp_old)
+      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
+    } else {
+      # nonstationary model, use moving average
+      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+    }
+    for (c in names_covariates) {
+      rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
+      for (yy in present:year) {
+        yi2 <- match(yy, years_proj)
+        for (m in 1:nmodel) {
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+        }
+      }
+    }
+  }
+}
+
+year <- 2050
+yi <- match(year, years_proj)
+yi_present <- match(present, years_proj)
+
+for (metric in names(metrics)) {
+  for (gg in names_evm) {
+    label_cnt <- 1
+    pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
+    par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
+    for (dd in idx_long) {
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      cc <- best_models_map[[gg]][[metric]]$covar[dd]
+      mm <- best_models_map[[gg]][[metric]]$model[dd]
+      if (cc==5) {cc <- 1; mm <- 1}
+      # actual plots
+      plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
+      grid()
+      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
+      axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
+      axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
+      #axis(2, at=seq(from=ymin,to=ymax,by=500), labels=seq(from=ymin,to=ymax,by=500), las=1)
+      mtext(side=1, text="Year", line=2.3, cex=0.85)
+      mtext(side=2, text="Height [mm]", line=2.3, cex=0.85)
+      mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=-0.075); label_cnt <- label_cnt + 1
+      mtext(side=3, text=site_dat[dd, "formal"], cex=0.85)
+    }
+    plot(-1, -1, xlim=c(0,2), ylim=c(0,2), col="white", xlab='', ylab='', xaxt='n', yaxt='n', xaxs='i', yaxs='i', axes=FALSE)
+    legend(0, 2, c("best model", covariate_labels[1:4]), lwd=c(2,1.3,1.3,1.3,1.3), col=c("black", unlist(covariate_colors)), cex=1.3, bty='n')
+    dev.off()
+  }
+}
 
 ##==============================================================================
 
 
 
 
-# probably want a plot of rl_new[[gg]] - rl_old[[gg]] -- map?
+##==============================================================================
+## Check if any of the GPD rate-nonstationary
+## models fits worse than a stationary model
+##===========================================
 
-png("../figures/return_periods_map.png", width=500, height=760)
-par(mfrow=c(2,1))
-
-# GEV model structures
-gg <- "gev"
-idx_long2 <- idx_long[-8] # because New London is all weird
-gr <- .bincode(rp_new[[gg]][idx_long2], seq(min(rp_new[[gg]][idx_long2]), max(rp_new[[gg]][idx_long2]), len=length(idx_long2)), include.lowest = T)
-cols <- c("firebrick", "orange", "yellow", "white")
-col <- colorRampPalette(cols, bias=1.75)(length(idx_long))[gr]
-map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
-map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
-points(lons[idx_long2], lats[idx_long2], bg=col, col="black", cex=2, pch=21)
-mtext(side=1, text='Longitude', line=2.0, cex=1)
-mtext(side=2, text='Latitude', line=3.8, cex=1)
-mtext(side=3, text=expression('(a)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GEV', line=0.1, cex=1.3)
-axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
-axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
-#legend(-74, 32, c("Stat","Time","NAO","Temp","Sea level"), pch=16,
-#       col=c(covariate_colors$Stat,covariate_colors$Time,covariate_colors$NAO,covariate_colors$Temp,covariate_colors$`Sea level`),
-#       pt.cex=2, cex=1, bty='n')
-colkey(clim=c(quantile(rp_new[[gg]][idx_long2],c(0,1))), at=seq(from=0,to=as.numeric(rp_old),by=10), labels=seq(from=1, to=as.numeric(rp_old), by=10), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=1.75)(length(idx_long2)))
-
-# COLOR BAR CLEARLY NOT LINED UP WITH THE FIGURE DOTS
-
-# GPD model structures
-gg <- "gpd"
-gr <- .bincode(rp_new[[gg]][idx_long2], seq(min(rp_new[[gg]][idx_long2]), max(rp_new[[gg]][idx_long2]), len=length(idx_long2)), include.lowest = T)
-cols <- c("firebrick", "orange", "yellow", "white")
-col <- colorRampPalette(cols, bias=1.75)(length(idx_long))[gr]
-map("world", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0))
-map("state", fill=TRUE, col="gray85", bg="white", xlim=c(-105, -66.5), ylim=c(23.5, 47), mar=c(4,10,0,0), add=TRUE)
-points(lons[idx_long2], lats[idx_long2], bg=col, col="black", cex=2, pch=21)
-mtext(side=1, text='Longitude', line=2.0, cex=1)
-mtext(side=2, text='Latitude', line=3.8, cex=1)
-mtext(side=3, text=expression('(b)'), line=0.1, cex=1.3, adj=0); mtext(side=3, text='GPD', line=0.1, cex=1.3)
-axis(side=1, at=seq(from=-110, to=-64, by=5), labels=c("110 °W", "", "100 °W", "", "90 °W", "", "80 °W", "", "70 °W", ""), cex.axis=1)
-axis(side=2, at=seq(from=20, to=50, by=5), labels=c("20 °N", "25 °N", "30 °N", "35 °N", "40 °N", "45 °N", "50 °N"), las=1, cex.axis=1)
-colkey(clim=c(quantile(rp_new[[gg]][idx_long2],c(0,1))), at=seq(from=0,to=as.numeric(rp_old),by=10), labels=seq(from=1, to=as.numeric(rp_old), by=10), cex.axis=1.5, side=4, dist=0, width=0.65, add=TRUE, col=colorRampPalette(cols, bias=1.75)(length(idx_long2)))
-
-dev.off()
-
-
-#cbind(site_names, lats, lons, rp_new$gpd, covariate_labels[best_models_map[[gg]][[metric]]$covar], best_models_map[[gg]][[metric]]$model, num_years)[idx_long,]
-#cbind(site_names, lats, lons, rl_new$gev - rl_old$gev)[order(lons),]cbind(site_names, lats, lons, rl_new$gev - rl_old$gev)[order(lons),]
-
+print(any(metrics$NPS$gpd[,,1]-metrics$NPS$gpd[,,2] < 0))
 
 ##==============================================================================
 
