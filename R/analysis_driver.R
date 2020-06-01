@@ -872,6 +872,9 @@ print(any(metrics$NPS$gpd[,,1]-metrics$NPS$gpd[,,2] < 0))
 ##==============================================================================
 
 
+print(apply(metrics$NPS$gev[,,3]-metrics$NPS$gev[,,1], 2, mean))
+print(apply(metrics$NPS$gpd[,,5]-metrics$NPS$gpd[,,1], 2, mean))
+
 
 ##==============================================================================
 ## End
