@@ -1,4 +1,23 @@
+##==============================================================================
 ## parameter_setup_gev.R
+##
+## Sets up a list `gev_models` that has the parameters names and bounds for each
+## of the 8 types of GEV distribution, varying from fully stationary (first list
+## element) to fully nonstationary (last list element).
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 nmodel <- 8
 gev_models <- vector("list", nmodel)
@@ -45,3 +64,7 @@ gev_models[[7]]$bound_upper <- c(5000, 1000, 200, 3, 3)
 gev_models[[8]]$parnames <- c("mu0", "mu1", "sigma0", "sigma1", "xi0", "xi1")
 gev_models[[8]]$bound_lower <- c(0, -500, 0, -200, -3, -3)
 gev_models[[8]]$bound_upper <- c(5000, 500, 1000, 200, 3, 3)
+
+##==============================================================================
+## End
+##==============================================================================

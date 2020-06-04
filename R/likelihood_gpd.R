@@ -1,26 +1,35 @@
-#===============================================================================
-# likelihood_gpd.R
-#
-# likelihood function(s), priors, posterior
-# for generalized pareto/poisson process distribution
-#
-# The idea is that a GPD governs how excesses above a given threshold are
-# distributed, but this is conditioned on the probability that we observe an
-# excess. These exceedance observations are governed by a Poisson process, where
-# the rate parameter gives (1/) the expected number of exceedances per year (or
-# other time unit desired; here I use a year).
-#
-# Questions? Tony Wong (aewsma@rit.edu)
-#===============================================================================
+##==============================================================================
+## likelihood_gpd.R
+##
+## likelihood function(s), priors, posterior
+## for generalized pareto/poisson process distribution
+##
+## The idea is that a GPD governs how excesses above a given threshold are
+## distributed, but this is conditioned on the probability that we observe an
+## excess. These exceedance observations are governed by a Poisson process, where
+## the rate parameter gives (1/) the expected number of exceedances per year (or
+## other time unit desired; here I use a year).
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 
-#
-#===============================================================================
-# pdf and cdf for pp-gpd (that can handle arrays)
-# note that this assumes you aren't a jerk and send in different length
-# arrays. so... don't do that.
-#===============================================================================
-#
+##==============================================================================
+## pdf and cdf for pp-gpd (that can handle arrays)
+## note that this assumes you aren't a jerk and send in different length
+## arrays. so... don't do that.
+##==============================================================================
 
 # use eq. 11 of Martins and Stedinger (2001), for each year independently:
 # llike <- log([likelihood of seeing exactly m exceedances in time interval dt with rate lambda[t]])
@@ -105,15 +114,14 @@ ppgpd_overtop <- function(h, lambda, sigma, xi, threshold, nmax, time.length){
   }
   return(res)
 }
+##==============================================================================
 
-#===============================================================================
 
 
-#
-#===============================================================================
-# project PP-GPD parameters
-#===============================================================================
-#
+##==============================================================================
+## project PP-GPD parameters
+##==============================================================================
+
 project_ppgpd <- function(parameters,
                           parnames,
                           auxiliary
@@ -152,14 +160,14 @@ project_ppgpd <- function(parameters,
 
   return(parameters_project)
 }
-#===============================================================================
+##==============================================================================
 
 
-#
-#===============================================================================
-# log(prior) for PP-GPD model
-#===============================================================================
-#
+
+##==============================================================================
+## log(prior) for PP-GPD model
+##==============================================================================
+
 log_prior_ppgpd <- function(parameters,
                             parnames,
                             priors,
@@ -181,14 +189,14 @@ log_prior_ppgpd <- function(parameters,
 
   return(lpri)
 }
-#===============================================================================
+##==============================================================================
 
 
-#
-#===============================================================================
-# -log(likelihood) for PP-GPD model
-#===============================================================================
-#
+
+##==============================================================================
+## -log(likelihood) for PP-GPD model
+##==============================================================================
+
 neg_log_like_ppgpd <- function(parameters,
                                parnames,
                                data_calib,
@@ -197,14 +205,14 @@ neg_log_like_ppgpd <- function(parameters,
   nll <- -1 * log_like_ppgpd(parameters, parnames, data_calib, auxiliary)
   return(nll)
 }
-#===============================================================================
+##==============================================================================
 
 
-#
-#===============================================================================
-# log(likelihood) for PP-GPD model
-#===============================================================================
-#
+
+##==============================================================================
+## log(likelihood) for PP-GPD model
+##==============================================================================
+
 log_like_ppgpd <- function(parameters,
                            parnames,
                            data_calib,
@@ -260,14 +268,14 @@ log_like_ppgpd <- function(parameters,
 
   return(llik)
 }
-#===============================================================================
+##==============================================================================
 
 
-#
-#===============================================================================
-# log(post) for PP-GPD model
-#===============================================================================
-#
+
+##==============================================================================
+## log(post) for PP-GPD model
+##==============================================================================
+
 log_post_ppgpd <- function(parameters,
                            parnames,
                            data_calib,
@@ -297,18 +305,19 @@ log_post_ppgpd <- function(parameters,
   lpost <- lpri + llik
   return(lpost)
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# negative log(posterior) for gpd model
-#===============================================================================
+##==============================================================================
+## negative log(posterior) for gpd model
+##==============================================================================
+
 neg_log_post_ppgpd <- function(parameters, parnames, data_calib, priors, model, auxiliary) {
   return(-log_post_ppgpd(parameters,parnames,data_calib,priors,model,auxiliary))
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# End
-#===============================================================================
+##==============================================================================
+## End
+##==============================================================================

@@ -2,10 +2,22 @@
 ## process_data.R
 ##
 ## Process data to yield time series of annual block maxima, to fit a GEV
-## distribution, for a set of tide gauge data formatted as in the UHSLC
-## repository (http://uhslc.soest.hawaii.edu/data/).
+## distribution, and a series of peaks-over-thresholds (POT), to fit a GPD,
+## for a set of tide gauge data formatted as in the UHSLC repository
+## (http://uhslc.soest.hawaii.edu/data/).
 ##
 ## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 
 

@@ -1,7 +1,32 @@
 ##==============================================================================
 ## best_models.R
 ##
+## This script will compute the goodness-of-fit metrics for each of the
+## candidate models:
+##  * nll, negative log-likelihood (so, computing the maximum likelihood value)
+##  * aic, Akaike information criterion
+##  * bic, Bayesian information criterion
+##  * nps, negative posterior score (so, computing the maximum a posteriori value)
+##
+## Note that AIC and BIC are both defined in terms of the maximum log-likelihood,
+## so the three of these are all done together. As a kind of hack, the maximum
+## a posteriori value is done by taking the DE optimization output and using
+## this same routine. Since those simulations have been optimized to minimize
+## the negative posterior score, that value will be stored in the nll at the
+## end of this file.
+##
 ## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 
 
@@ -22,7 +47,7 @@ data_calib <- vector('list', n_evm); names(data_calib) <- names_evm
 data_calib$gev <- readRDS(filename_calibdata_gev)
 data_calib$gpd <- readRDS(filename_calibdata_gpd)
 covariates <- readRDS(filename_covariates)
-names_covariates <- colnames(covariates)[2:5]
+names_covariates <- colnames(covariates)[2:ncol(covariates)]
 ncovar <- length(names_covariates)
 source("trimmed_forcing.R")
 source("parameter_setup_gev.R")

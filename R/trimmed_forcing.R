@@ -1,8 +1,25 @@
-# Useful:
+##==============================================================================
+## trimmed_forcing.R
+##
+## This is a helper function to trim the auxiliary covariate forcing to fit the
+## tide gauge record's unique years. There might be missing years in the tide
+## gauge data set, so we need to match each year and not just plot down an
+## evenly spaced sequence. Does it sound like I'm speaking from experience?
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
-# function to trim forcing to fit TG record unique years
-# there might be missing years in TG record, so need to match each year and not
-# just plop down an evenly spaced sequence
 trimmed_forcing <- function(years_tidegauge, years_forcing, forcing) {
   output <- vector('list', 2); names(output) <- c('time','forcing')
   # check the beginning
@@ -15,3 +32,7 @@ trimmed_forcing <- function(years_tidegauge, years_forcing, forcing) {
   output$forcing <- forcing[imatch]
   return(output)
 }
+
+##==============================================================================
+## End
+##==============================================================================

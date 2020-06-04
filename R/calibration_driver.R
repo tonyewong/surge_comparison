@@ -1,8 +1,35 @@
 ##==============================================================================
 ## calibration_driver.R
 ##
+## Maximize the likelihood or the posterior score (or equivalently, minimize the
+## negative log-likelihood or the negative log-posterior score).
+##  * To maximize the likelihood, set `calib_post = FALSE` below.
+##  * To maximize the posterior score, set `calib_post = TRUE` below.
+##  * If you haven't done the processing yet, and/or are not starting with final
+##    processed data RDS files (as are provided as part of the code/data here),
+##    then you'll need set `do_data_processing = TRUE`. Otherwise, save a lot of
+##    time and set it FALSE and make sure you set the file names appropriately
+##    (including their paths relative to the directory THIS file is in) below
+##    in the section `data processing for GEV, GPD and covariates`.
+##  * The same goes for the covariates RDS file and prior distributions RDS file.
+## The CSV files provided as part of this program (in the `/csv/` directory) are
+## meant to be used by folks who are NOT programming in R, and so folks can view
+## the data/results without opening R. To actually use within this program in R,
+## it is strongly recommended to use the RDS files, either produced and shared
+## as part of this program, or that you have generated yourself.
 ##
 ## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ##==============================================================================
 
 

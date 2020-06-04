@@ -1,17 +1,28 @@
-#===============================================================================
-# likelihood_gev.R
-#
-# Likelihood function(s), priors, posterior for generalized extreme value
-# distribution. Parameters may covary with some `auxiliary` time series.
-#
-# Questions? Tony Wong (aewsma@rit.edu)
-#===============================================================================
+##==============================================================================
+## likelihood_gev.R
+##
+## Likelihood function(s), priors, posterior for generalized extreme value
+## distribution. Parameters may covary with some `auxiliary` time series.
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 
-#===============================================================================
-# log(prior) for gev model
-#===============================================================================
-#
+##==============================================================================
+## log(prior) for gev model
+##==============================================================================
+
 log_prior_gev <- function(parameters,
                           parnames,
                           priors
@@ -29,12 +40,13 @@ log_prior_gev <- function(parameters,
   }
   return(lpri)
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# log(likelihood) for gev model
-#===============================================================================
+##==============================================================================
+## log(likelihood) for gev model
+##==============================================================================
+
 log_like_gev <- function(parameters,     # set of GEV parameters (possibly nonstationary)
                          parnames,       # gev_models[[m]]$parnames
                          data_calib,     # processing_output[,"lsl_max"]
@@ -67,12 +79,13 @@ log_like_gev <- function(parameters,     # set of GEV parameters (possibly nonst
   llik <- sum(devd(data_calib, loc=mu, scale=sigma, shape=xi, log=TRUE, type='GEV'))
   return(llik)
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# negative log(likelihood) for gev model
-#===============================================================================
+##==============================================================================
+## negative log(likelihood) for gev model
+##==============================================================================
+
 neg_log_like_gev <- function(parameters,     # set of GEV parameters (possibly nonstationary)
                              parnames,       # gev_models[[m]]$parnames
                              data_calib,     # processing_output[,"lsl_max"]
@@ -80,12 +93,13 @@ neg_log_like_gev <- function(parameters,     # set of GEV parameters (possibly n
 ){
   return(-log_like_gev(parameters,parnames,data_calib,auxiliary))
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# log(posterior) for gev model
-#===============================================================================
+##==============================================================================
+## log(posterior) for gev model
+##==============================================================================
+
 log_post_gev <- function(parameters, parnames, data_calib, priors, auxiliary){
 
   lpost <- 0
@@ -108,18 +122,19 @@ log_post_gev <- function(parameters, parnames, data_calib, priors, auxiliary){
   lpost <- lpri + llik
   return(lpost)
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# negative log(posterior) for gev model
-#===============================================================================
+##==============================================================================
+## negative log(posterior) for gev model
+##==============================================================================
+
 neg_log_post_gev <- function(parameters, parnames, data_calib, priors, auxiliary) {
   return(-log_post_gev(parameters,parnames,data_calib,priors,auxiliary))
 }
-#===============================================================================
+##==============================================================================
 
 
-#===============================================================================
-# End
-#===============================================================================
+##==============================================================================
+## End
+##==============================================================================
