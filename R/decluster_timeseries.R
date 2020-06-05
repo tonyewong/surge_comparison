@@ -1,34 +1,34 @@
-#===============================================================================
-# decluster_timeseries.R
-#
-# whoops, extRemes package has a function for this... ah well. this gives you
-# all of the information this script assumes you'll need, and does not hide the
-# guts of this routine, permitting for easy/transparent modification.
-#
-# time          times of observations within the time.series
-# year          years of observations within the time.series
-# time.series   values of time series with the times/years given by time and year
-# min.dt        declustering time scale; the whole point of this routine is to
-#               take observations from time.series that are within min.dt of one
-#               another and return only the maximum of the 'cluster' and its
-#               time/year
-#
-# Questions? Tony Wong (anthony.e.wong@colorado.edu)
-#===============================================================================
-# Copyright 2017 Tony Wong
-#
-# MESS is free software: you can redistribute it and/or modify it under the
-# terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
-#
-# MESS is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# MESS.  If not, see <http://www.gnu.org/licenses/>.
-#===============================================================================
+##==============================================================================
+## decluster_timeseries.R
+##
+## The extRemes package has a function for this, but this lets you know what is
+## going on behind the curtains for transparency and easier modification, if
+## desired. This function is to be used to remove multiple extreme events that
+## are all part of the same storm event. The purpose is to satisfy the condition
+## of independence among the exceedances, when fitting a generalized Pareto
+## distribution to those exceedances. 
+##
+## time          times of observations within the time.series
+## year          years of observations within the time.series
+## time.series   values of time series with the times/years given by time and year
+## min.dt        declustering time scale; the whole point of this routine is to
+##               take observations from time.series that are within min.dt of one
+##               another and return only the maximum of the 'cluster' and its
+##               time/year
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 decluster_timeseries <- function(time, year, time.series, min.dt) {
   decluster <- vector('list',3)
@@ -80,7 +80,7 @@ decluster_timeseries <- function(time, year, time.series, min.dt) {
   }
   return(decluster)
 }
-#===============================================================================
-# End
-#===============================================================================
-#
+
+##==============================================================================
+## End
+##==============================================================================

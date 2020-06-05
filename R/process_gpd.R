@@ -15,6 +15,17 @@
 ##
 ## Questions? Tony Wong (aewsma@rit.edu)
 ##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 process_gpd <- function(filename_in, data_dir, threshold_missing_data=0.9, gpd_threshold=0.99, dt_decluster=3) {
 
@@ -201,7 +212,7 @@ data.tg$sl[idx_missing] <- NA
   # Buchanan et al (2016) use the 99% quantile of the daily maximum time series.
   gpd.threshold <- as.numeric(quantile(sl.daily.max, gpd_threshold, na.rm=TRUE))
   data_out$dt.decluster <- dt_decluster
-  data_out$p.threhsold <- gpd_threshold
+  data_out$p.threshold <- gpd_threshold
   data_out$threshold <- gpd.threshold
 
   ind.exceed <- which(sl.daily.max > gpd.threshold)

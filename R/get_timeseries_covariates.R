@@ -1,12 +1,23 @@
-#===============================================================================
-# get_timeseries_covariates.R
-#
-# First, everything is normalized to first 20 years (1928-1937) of the tide
-# gauge data. Then, the covariates are each normalized so that the min-max
-# range for the hindcast period is 0-1.
-#
-# Questions? Tony Wong (aewsma@rit.edu)
-#===============================================================================
+##==============================================================================
+## get_timeseries_covariates.R
+##
+## First, everything is normalized to first 20 years (1928-1937) of the tide
+## gauge data. Then, the covariates are each normalized so that the min-max
+## range for the hindcast period is 0-1.
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
 
 
 library(ncdf4)
@@ -281,6 +292,6 @@ for (cc in names_covariates) {
 covariates <- cbind(covariates_proj[1:nrow(covariates), "year"] ,covariates)
 colnames(covariates)[1] <- "year"
 
-#===============================================================================
-# End
-#===============================================================================
+##==============================================================================
+## End
+##==============================================================================

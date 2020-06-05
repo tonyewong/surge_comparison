@@ -1,26 +1,38 @@
-#===============================================================================
-# fit_priors.R
-#
-# Fit prior distributions for eight candidate GEV and PP/GPD-based model structures,
-# times four candidate covariates, using all UHSLC data (research quality
-# versions) at least 90 years, plus Sewells Point (Norfolk).
-# Makes for 29 stations total.
-#
-# 1. get tide gauge data objects for all UHSLC database sites with > 90 years
-# 2. get ... for Norfolk, VA, USA (not in database)
-# 3. calculate maximum likelihood pp/gpd parameters, for each of the candidate
-#    model structures, for each of the sites
-# 4. fit normal or gamma prior distributions to these parameter sets, for each
-#    model parameter within each of the candidate model structures.
-# 5. write this priors object to a file (rds) and save progress to revisit later
-#    (rdata)
-#
-# Updated 11 Dec 2017 // revised processing // tony wong
-# Updated 18 Aug 2018 // revised for covariates // tony wong
-# Updated 14 May 2020 // revised for comparison of extreme value models // tony wong
-#
-# Questions? Tony Wong (aewsma@rit.edu)
-#===============================================================================
+##===============================================================================
+## fit_priors.R
+##
+## Fit prior distributions for eight candidate GEV and PP/GPD-based model structures,
+## times four candidate covariates, using all UHSLC data (research quality
+## versions) at least 90 years, plus Sewells Point (Norfolk).
+## Makes for 29 stations total.
+##
+## 1. get tide gauge data objects for all UHSLC database sites with > 90 years
+## 2. get ... for Norfolk, VA, USA (not in database)
+## 3. calculate maximum likelihood pp/gpd parameters, for each of the candidate
+##    model structures, for each of the sites
+## 4. fit normal or gamma prior distributions to these parameter sets, for each
+##    model parameter within each of the candidate model structures.
+## 5. write this priors object to a file (rds) and save progress to revisit later
+##    (rdata)
+##
+## Updated 11 Dec 2017 // revised processing // tony wong
+## Updated 18 Aug 2018 // revised for covariates // tony wong
+## Updated 14 May 2020 // revised for comparison of extreme value models // tony wong
+##
+## Questions? Tony Wong (aewsma@rit.edu)
+##==============================================================================
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+##==============================================================================
+
 
 rm(list=ls())
 
@@ -514,8 +526,6 @@ priors$gev <- priors_normalgamma
 
 print('...done.')
 
-#
-#===============================================================================
-# End
-#===============================================================================
-#
+##==============================================================================
+## End
+##==============================================================================
