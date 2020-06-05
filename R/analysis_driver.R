@@ -882,12 +882,20 @@ for (metric in names(metrics)) {
 ##===========================================
 
 print(any(metrics$NPS$gpd[,,1]-metrics$NPS$gpd[,,2] < 0))
-
+print(apply(metrics$NPS$gev[,,3]-metrics$NPS$gev[,,1], 2, mean))
+print(apply(metrics$NPS$gpd[,,5]-metrics$NPS$gpd[,,1], 2, mean))
 ##==============================================================================
 
 
-print(apply(metrics$NPS$gev[,,3]-metrics$NPS$gev[,,1], 2, mean))
-print(apply(metrics$NPS$gpd[,,5]-metrics$NPS$gpd[,,1], 2, mean))
+
+##==============================================================================
+## Plots and maps for only the 1-parameter models
+## WARNING: at this point, the script below is going to overwrite all of the
+## main analysis arrays and lists. For example, the `best_models_datlen` list.
+
+source("plots_one_parameter_models.R")
+##==============================================================================
+
 
 
 ##==============================================================================

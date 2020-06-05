@@ -37,7 +37,7 @@ todo
 
 ### Tide gauge stations
 
-* Only take stations with at least 15 years of available data
+* Only taking stations with at least 15 years of available data, from the University of Hawaii Sea Level Center database
 
 ### Covariate time series forcing
 
