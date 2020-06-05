@@ -2,24 +2,36 @@
 
 ## Directory structure
 
-todo
+* `csv` - processed data, calibrated parameters, and prior distributions in CSV file form. The main versions are in RDS files in the `input_data` and `output` directories.
+* `figures` - figures generated from the `analysis_driver.R` file
+* `input_data` - tide gauge data and the data sets and projections for the covariate time series
+* `output` - return level and calibrated parameter outputs
+* `R` - all of the R code for processing the raw tide gauge data, calibrating the models, writing the output, analyzing the output and generating the plots
 
 ## Workflow
 
 todo
 
-1. process_data.R
-  1. process_gev.R - yields `processeddata_gev_[date].rds`
-  1. process_gpd.R - yields `processeddata_gpd_[date].rds`; note that this processing takes a while (hours) because of the moving average to account for mean sea level rise
-  1. get_timeseries_covariates.R - yields `covariates_[date].rds`
-1. calibration_driver.R
-  1. trimmed_forcing.R
-  1. likelihood_gev.R
-  1. likelihood_gpd.R
-  1. parameter_setup_gev.R
-  1. parameter_setup_gpd.R
-  1. yields `optim_[covariate name]-gev-[date].rds`, output from maximum likelihood optimization for GEV parameters in each of the 8 potentially nonstationary models.
-
+1. `install_packages.R` - install the relevant R packages that will be used later
+1. `process_data.R` - process the raw tide gauge data for fitting the extreme value models
+  1. `process_gev.R` - yields `processeddata_gev_[date].rds`
+  1. `process_gpd.R` - yields `processeddata_gpd_[date].rds`; note that this processing takes a while (hours at least)
+  1. `get_timeseries_covariates.R` - yields `covariates_[date].rds`
+1. `calibration_driver.R` - need to set the file names in this script to make the processed data files and time series covariates file from the first couple steps.
+  1. `trimmed_forcing.R` - used for matching up the time periods with tide gauge data to the time periods from the covariate data
+  1. `fit_priors.R` - fit prior distributions to the set of long tide gauge stations around the world.
+  1. `likelihood_gev.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
+  1. `likelihood_gpd.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
+  1. `parameter_setup_gev.R`
+  1. `parameter_setup_gpd.R`
+  1. to reproduce the results of the manuscript accompanying this work, need to run this twice - once with `calib_post = TRUE` (maximum a posteriori) and once with `calib_post = FALSE` (maximum likelihood)
+  1. yields `optim_[covariate name]-[gev or gpd]-[date].rds`, output from maximum likelihood optimization for GEV or GPD parameters in each of the 8 potentially nonstationary models.
+1. `analysis_driver.R` - make return level/period projections, calculate goodness-of-fit metrics and generate plots
+  1. `best_models.R` - compute goodness-of-fit metrics
+  1. `make_projections.R` - use the a posteriori statistical model parameters and the covariate time series forcing to estimate return levels and return periods
+1. Epilogue
+  1. `write_csv_data_and_priors.R` - read the RDS file with the processed data and prior distributions in it and translate these into CSV form for easier reading
+  1. `write_csv_parameters.R` - write the calibrated sets of parameters to a CSV file
 
 ## Input data
 
