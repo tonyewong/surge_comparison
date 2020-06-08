@@ -1,4 +1,4 @@
-# surge_comparison
+# Codes for the comparison of storm tide statistical modeling
 
 ## Directory structure
 
@@ -9,8 +9,6 @@
 * `R` - all of the R code for processing the raw tide gauge data, calibrating the models, writing the output, analyzing the output and generating the plots
 
 ## Workflow
-
-todo
 
 1. `install_packages.R` - install the relevant R packages that will be used later
 1. `process_data.R` - process the raw tide gauge data for fitting the extreme value models
