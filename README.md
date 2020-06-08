@@ -1,5 +1,7 @@
 # Codes for the comparison of storm tide statistical modeling
 
+<img src="./figures/covariate_choice_map_NPS_cropped.png" width="450">
+
 ## Directory structure
 
 * `csv` - processed data, calibrated parameters, and prior distributions in CSV file form. The main versions are in RDS files in the `input_data` and `output` directories.
