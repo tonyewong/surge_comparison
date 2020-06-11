@@ -37,7 +37,11 @@
 
 ### Tide gauge stations
 
-* Only taking stations with at least 15 years of available data, from the University of Hawaii Sea Level Center database
+* Only taking stations with at least 15 years of available data, from the [University of Hawaii Sea Level Center database](http://uhslc.soest.hawaii.edu/data/)
+* Only using sites on U.S. East and Gulf coasts
+* Out of the 40 sites that meet that criteria initially, processing leads to 4 sites falling below the data length threshold, leaving 36 for analysis. They are shown in the figure below.
+
+<img src="./figures/sitemap.png" width="450">
 
 ### Covariate time series forcing
 
