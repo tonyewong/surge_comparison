@@ -12,7 +12,9 @@
 
 ## Workflow
 
-1. `install_packages.R` - install the relevant R packages that will be used later
+Note that you must install the needed R packages and the required data sets before proceeding. Three data sets are not included in the Github repository because of their size. The `install_packages.R` script will do this for you.
+
+1. `install_packages.R` - install the relevant R packages and large data sets that will be used later
 1. `process_data.R` - process the raw tide gauge data for fitting the extreme value models
     1. `process_gev.R` - yields `processeddata_gev_[date].rds`
     1. `process_gpd.R` - yields `processeddata_gpd_[date].rds`; note that this processing takes a while (hours at least)
