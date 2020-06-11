@@ -152,7 +152,8 @@ for (gg in names_evm) {
 ## Save results to an RData file
 ##==============================
 
-save(list=c("nll","aic","bic","nps"), file="../output/comparison_metrics.RData")
+# `today` set in `analysis_driver.R` before calling this script
+save(list=c("nll","aic","bic","nps"), file=paste("../output/comparison_metrics_",today,".RData"))
 ##==============================================================================
 
 
