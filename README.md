@@ -1,6 +1,6 @@
 # Codes for the comparison of storm tide statistical modeling
 
-<img src="./figures/covariate_choice_map_NPS_cropped.png" width="550">
+<img src="./figures/covariate_choice_map_NPS_cropped.png" width="650">
 
 ## Directory structure
 
