@@ -10,8 +10,6 @@
 
 ## Workflow
 
-todo
-
 1. `install_packages.R` - install the relevant R packages that will be used later
 1. `process_data.R` - process the raw tide gauge data for fitting the extreme value models
   1. `process_gev.R` - yields `processeddata_gev_[date].rds`
