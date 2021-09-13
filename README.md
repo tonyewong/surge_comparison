@@ -1,4 +1,6 @@
-# surge_comparison
+# Codes for the comparison of storm tide statistical modeling
+
+<img src="./figures/covariate_choice_map_NPS_cropped.png" width="650">
 
 ## Directory structure
 
@@ -10,39 +12,45 @@
 
 ## Workflow
 
-1. `install_packages.R` - install the relevant R packages that will be used later
+Note that you must install the needed R packages and the required data sets before proceeding. Three data sets are not included in the Github repository because of their size. The `install_packages.R` script will do this for you.
+
+1. `install_packages.R` - install the relevant R packages and large data sets that will be used later
 1. `process_data.R` - process the raw tide gauge data for fitting the extreme value models
-  1. `process_gev.R` - yields `processeddata_gev_[date].rds`
-  1. `process_gpd.R` - yields `processeddata_gpd_[date].rds`; note that this processing takes a while (hours at least)
-  1. `get_timeseries_covariates.R` - yields `covariates_[date].rds`
+    1. `process_gev.R` - yields `processeddata_gev_[date].rds`
+    1. `process_gpd.R` - yields `processeddata_gpd_[date].rds`; note that this processing takes a while (hours at least)
+    1. `get_timeseries_covariates.R` - yields `covariates_[date].rds`
 1. `calibration_driver.R` - need to set the file names in this script to make the processed data files and time series covariates file from the first couple steps.
-  1. `trimmed_forcing.R` - used for matching up the time periods with tide gauge data to the time periods from the covariate data
-  1. `fit_priors.R` - fit prior distributions to the set of long tide gauge stations around the world.
-  1. `likelihood_gev.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
-  1. `likelihood_gpd.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
-  1. `parameter_setup_gev.R`
-  1. `parameter_setup_gpd.R`
-  1. to reproduce the results of the manuscript accompanying this work, need to run this twice - once with `calib_post = TRUE` (maximum a posteriori) and once with `calib_post = FALSE` (maximum likelihood)
-  1. yields `optim_[covariate name]-[gev or gpd]-[date].rds`, output from maximum likelihood optimization for GEV or GPD parameters in each of the 8 potentially nonstationary models.
+    1. `trimmed_forcing.R` - used for matching up the time periods with tide gauge data to the time periods from the covariate data
+    1. `fit_priors.R` - fit prior distributions to the set of long tide gauge stations around the world.
+    1. `likelihood_gev.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
+    1. `likelihood_gpd.R` - the likelihood function, prior and posterior distribution functions and some other useful helper functions
+    1. `parameter_setup_gev.R`
+    1. `parameter_setup_gpd.R`
+    1. to reproduce the results of the manuscript accompanying this work, need to run this twice - once with `calib_post = TRUE` (maximum a posteriori) and once with `calib_post = FALSE` (maximum likelihood)
+    1. yields `optim_[covariate name]-[gev or gpd]-[date].rds`, output from maximum likelihood optimization for GEV or GPD parameters in each of the 8 potentially nonstationary models.
 1. `analysis_driver.R` - make return level/period projections, calculate goodness-of-fit metrics and generate plots
-  1. `best_models.R` - compute goodness-of-fit metrics
-  1. `make_projections.R` - use the a posteriori statistical model parameters and the covariate time series forcing to estimate return levels and return periods
+    1. `best_models.R` - compute goodness-of-fit metrics
+    1. `make_projections.R` - use the a posteriori statistical model parameters and the covariate time series forcing to estimate return levels and return periods
 1. Epilogue
-  1. `write_csv_data_and_priors.R` - read the RDS file with the processed data and prior distributions in it and translate these into CSV form for easier reading
-  1. `write_csv_parameters.R` - write the calibrated sets of parameters to a CSV file
+    1. `write_csv_data_and_priors.R` - read the RDS file with the processed data and prior distributions in it and translate these into CSV form for easier reading
+    1. `write_csv_parameters.R` - write the calibrated sets of parameters to a CSV file
 
 ## Input data
 
 ### Tide gauge stations
 
-* Only take stations with at least 15 years of available data
+* Only taking stations with at least 15 years of available data, from the [University of Hawaii Sea Level Center database](http://uhslc.soest.hawaii.edu/data/)
+* Only using sites on U.S. East and Gulf coasts
+* Out of the 40 sites that meet that criteria initially, processing leads to 4 sites falling below the data length threshold, leaving 36 for analysis. They are shown in the figure below.
+
+<img src="./figures/sitemap.png" width="450">
 
 ### Covariate time series forcing
 
 * time is simply the year
 * global mean sea level is taken from [Wong and Keller (2017; doi: 10.1002/2017EF000607)](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2017EF000607)) for projections and from [Church and White (2013; doi: 10.1007/s10712-011-9119-1)](https://link.springer.com/article/10.1007/s10712-011-9119-1) for hindcast
-* global mean surface temperature is taken from [todo](todo) for projections and from [todo](todo) for hindcast
-* winter mean NAO index is taken from [todo](todo) for hindcast and computed from [todo](todo) for projections
+* global mean surface temperature is taken from the [National Centers for Environmental Information data portal](http://www.ncdc.noaa.gov/cag/) for hindcast and from the [CNRM-CM5 simulation (member 1) under Representative Concentration Pathway 8.5 (RCP8.5)](http://cmip-pcmdi.llnl.gov/cmip5/) for projections
+* winter mean NAO index is taken from [Jones et al. (1997)](https://doi.org/10.1002/(SICI)1097-0088(19971115)17:13%3C1433::AID-JOC203%3E3.0.CO;2-P) for hindcast and, for projections, is computed from the [MPI-ECHAM5 sea-level pressure projection](http://www.mpimet.mpg.de/fileadmin/models/echam/mpi_report_349.pdf) under the Special Report on Emission Scenarios (SRES) A1B as part of the ENSEMBLES project for projections
 
 If you want to use your own time series forcing,
 * get it onto an annual mean time scale,
