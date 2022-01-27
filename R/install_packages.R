@@ -18,6 +18,7 @@
 ##==============================================================================
 
 # packages
+install.packages("abind")
 install.packages("coda")
 install.packages("extRemes")
 install.packages("ncdf4")
@@ -26,6 +27,8 @@ install.packages("Hmisc")
 install.packages("date")
 install.packages("Bolstad")
 install.packages("xlsx")
+install.packages("plot3D")
+install.packages("maps")
 
 # data - temperature projections
 local <- "../input_data/global.tas.aann.CNRM-CM5.historical+rcp85.r1i1p1.18500101-21001231.nc"

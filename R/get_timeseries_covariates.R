@@ -54,6 +54,12 @@ time_hist <- nao_dat[ibeg:iend, 'year']
 ind_norm <- which(time_hist==2001):which(time_hist==2016)
 nao_hist <- (nao_hist - mean(nao_hist[ind_norm]))/sd(nao_hist[ind_norm])
 
+# normalize relative to first 20 years of storm surge data
+# (doing for both historical and projection, then stitching together and renormalizing)
+ibeg <- which(time_hist==years[1])
+iend <- which(time_hist==years[20])
+nao_hist <- nao_hist - mean(nao_hist[ibeg:iend])
+
 nao <- cbind(time_hist, nao_hist)
 colnames(nao) <- c('year','nao')
 
@@ -107,14 +113,64 @@ colnames(covariates) <- names_covariates
 # get time series for forcing/making return level projections
 
 
-# CNRM temperature projections =================================================
-ncdata <- nc_open('../input_data/global.tas.aann.CNRM-CM5.historical+rcp85.r1i1p1.18500101-21001231.nc')
-   temperature_proj <- ncvar_get(ncdata, 'tas')
-   time_proj <- ncvar_get(ncdata, 'time')
-nc_close(ncdata)
+# CESM temperature projections =================================================
+# gridcell areas
+ncin <- nc_open("../input_data/cesm/GridcellAreaAtmosphere-CESM2-CMIP6_accessed26Jan2022/areacella_fx_CESM2_ssp585_r4i1p1f1_gn_v20200528.nc")
+areaa <- ncvar_get(ncin,"areacella")
+nc_close(ncin)
+areaa_wgts <- areaa/sum(areaa)
 
+# historical (Jan 1850 - Dec 2014)
+ncin <- nc_open("../input_data/cesm/SurfaceTemperatureHistorical-CESM2-CMIP6_accessed26Jan2022/ts_Amon_CESM2_historical_r1i1p1f1_gn_185001-201412_v20190308.nc")
+time_ts_hist <- ncvar_get(ncin,"time")
+ts_hist <- ncvar_get(ncin,"ts")
+nc_close(ncin)
+# convert K to deg C
+ts_hist <- ts_hist - 273.15
+# global mean
+ts_hist_global_monthly <- rep(-99999, length(time_ts_hist))
+areaa_wgts <- areaa/sum(areaa)
+for (i in 1:length(time_ts_hist)) {
+  ts_hist_global_monthly[i] <- sum(ts_hist[,,i]*areaa_wgts)
+}
+# annual mean
+ts_hist_global_annual <- rep(-99999, length(time_ts_hist)/12)
+for (i in 1:(length(time_ts_hist)/12)) {
+  ts_hist_global_annual[i] <- mean(ts_hist_global_monthly[((i-1)*12+1):(i*12)])
+}
+
+# 2015-2064
+ncin <- nc_open("../input_data/cesm/SurfaceTemperature-CESM2-CMIP6_accessed26Jan2022/ts_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412_v20200528.nc")
+time_2015_2064 <- ncvar_get(ncin,"time")
+ts_2015_2064 <- ncvar_get(ncin,"ts")
+nc_close(ncin) # units: ncin$var$ts$units
+# 2065-2100
+ncin <- nc_open("../input_data/cesm/SurfaceTemperature-CESM2-CMIP6_accessed26Jan2022/ts_Amon_CESM2_ssp585_r4i1p1f1_gn_206501-210012_v20200528.nc")
+time_2065_2100 <- ncvar_get(ncin,"time")
+ts_2065_2100 <- ncvar_get(ncin,"ts")
+nc_close(ncin)
+
+# stitch projections together
+time_ts <- c(time_2015_2064, time_2065_2100)
+ts <- abind(ts_2015_2064, ts_2065_2100)
+# convert K to deg C
+ts <- ts - 273.15
+# global aggregation
+ts_global_monthly <- rep(-99999, length(time_ts))
+for (i in 1:length(time_ts)) {
+  ts_global_monthly[i] <- sum(ts[,,i]*areaa_wgts)
+}
+# annual means
+# matches well against Figure 1a from Meehl et al 2020 (https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2020EA001296)
+ts_global_annual <- rep(-99999, length(time_ts)/12)
+for (i in 1:(length(time_ts)/12)) {
+  ts_global_annual[i] <- mean(ts_global_monthly[((i-1)*12+1):(i*12)])
+}
+
+# stitch together the CESM2 historical temperatures from the repository
+temperature_proj <- c(ts_hist_global_annual, ts_global_annual)
+year_proj <- 1850:2100
 # normalize like covariates for calibration
-year_proj <- floor(time_proj/10000)
 ibeg <- which(year_proj==years[1])
 iend <- which(year_proj==years[20])
 temperature_proj <- temperature_proj - mean(temperature_proj[ibeg:iend])
@@ -151,25 +207,38 @@ gmsl_proj[,2] <- gmsl_proj[,2] - mean(gmsl_proj[ibeg:iend,2])
 
 # NAO index ====================================================================
 # (using method of Stephenson et al 2006, as in Wong et al 2018)
-file.in <- '../input_data/DMIEH5_SRA1B_4_MM_psl.1-1200.nc'
-ncdata <- nc_open(file.in)
-  psl <- ncvar_get(ncdata, 'psl')
-  lon <- ncvar_get(ncdata, 'lon')
-  lat <- ncvar_get(ncdata, 'lat')
-  time <- ncvar_get(ncdata, 'time')  # hours after 2001-01-31 (2001-2100 data)
-nc_close(ncdata)
+ncin <- nc_open("../input_data/cesm/SeaLevelPressureHistorical-CESM2-CMIP6_accessed26Jan2022/psl_Amon_CESM2_historical_r1i1p1f1_gn_185001-201412_v20190308.nc")
+lon <- ncvar_get(ncin, "lon")
+lat <- ncvar_get(ncin, "lat")
+time_1850_2014 <- ncvar_get(ncin,"time")
+psl_1850_2014 <- ncvar_get(ncin,"psl")
+nc_close(ncin)
 
-n_month <- length(time)
-n_year <- n_month/12 -1
+ncin <- nc_open("../input_data/cesm/SeaLevelPressure-CESM2-CMIP6_accessed26Jan2022/psl_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412_v20200528.nc")
+time_2015_2064 <- ncvar_get(ncin,"time")
+psl_2015_2064 <- ncvar_get(ncin,"psl")
+nc_close(ncin)
+
+ncin <- nc_open("../input_data/cesm/SeaLevelPressure-CESM2-CMIP6_accessed26Jan2022/psl_Amon_CESM2_ssp585_r4i1p1f1_gn_206501-210012_v20200528.nc")
+time_2065_2100 <- ncvar_get(ncin,"time")
+psl_2065_2100 <- ncvar_get(ncin,"psl")
+nc_close(ncin)
+
+time_psl <- c(time_1850_2014,time_2015_2064, time_2065_2100)
+psl <- abind(psl_1850_2014,psl_2015_2064, psl_2065_2100)
+
+n_month <- length(time_psl)
+n_year <- n_month/12 -1 # -1 reflects number of complete DJF NOA indices we'll get
 
 # As in Stephenson et al, 2006 (doi:  10.1007/s00382-006-0140-x)
 # use regional, since there is disagreement over how exactly to do the PCA
 # (which EOFs to rotate, e.g.) and a physical interpretation is direct this way
+# From CESM, -90 < lat < 90 and 0 < lon < 360
 ilat_azores <- which(lat >= 20 & lat <= 55)
-ilon_azores <- which(lon >=(360-90) | lon <= 60)
+ilon_azores <- which(lon >= (360-90) | lon <= 60)
 
 ilat_iceland <- which(lat >= 55 & lat <= 90)
-ilon_iceland <- which(lon >=(360-90) | lon <= 60)
+ilon_iceland <- which(lon >= (360-90) | lon <= 60)
 
 psl_azores <- psl[ilon_azores, ilat_azores, ]
 psl_iceland <- psl[ilon_iceland, ilat_iceland, ]
@@ -185,36 +254,48 @@ psl_iceland <- psl[ilon_iceland, ilat_iceland, ]
 #   atmospheric mass producing the surface pressure) isn't really important,
 #   they are just using the values to produce a strong statistical relationship.
 
-# take the bulk average over each area, for each month
+# take the bulk average over each spatial area, for each month
 psl_azores_spavg <- apply(psl_azores, 3, mean)
 psl_iceland_spavg <- apply(psl_iceland, 3, mean)
 
 # Standardize each site separately (as discussed in Jones et al 1997). Do relative
 # to 2001-2016 mean/stdev so we can be consistent between projections and the
 # historical record
-psl_azores_std <- rep(-999, n_month)
-psl_iceland_std <- rep(-999, n_month)
+psl_azores_std <- rep(-99999, n_month)
+psl_iceland_std <- rep(-99999, n_month)
+
+# indices corresponding to 2001-2016?
+# > ncin$dim$time$units
+# [1] "days since 0001-01-01 00:00:00"
+# 1850-2000 (inclusive) = 12 months/year * 151 years = 1812 months
+# 2001-2016 (inclusive) = 12 months/year * 16 years = 192 months
+idx_2001_2016 <- (12*151+1):(12*151+12*16)
+
 for (m in 1:12) {
-  ind_this_month <- seq(from=m, to=n_month, by=12)
-  # first 16 are 2001-2016
-  psl_tmp <- psl_azores_spavg[ind_this_month]
-  psl_azores_std[ind_this_month] <- (psl_tmp - mean(psl_tmp[1:16]))/sd(psl_tmp[1:16])
+  ind_this_month <- seq(from=m, to=n_month, by=12) # gather up all of month m's data points
+  idx_2001_2016_this_month <- intersect(ind_this_month, idx_2001_2016)
+  psl_tmp <- psl_azores_spavg[ind_this_month]      # only the Azores avgs for this month
+  psl_azores_std[ind_this_month] <- (psl_tmp - mean(psl_azores_spavg[idx_2001_2016_this_month]))/sd(psl_azores_spavg[idx_2001_2016_this_month]) # slot the normalized values in
   psl_tmp <- psl_iceland_spavg[ind_this_month]
-  psl_iceland_std[ind_this_month] <- (psl_tmp - mean(psl_tmp[1:16]))/sd(psl_tmp[1:16])
+  psl_iceland_std[ind_this_month] <- (psl_tmp - mean(psl_azores_spavg[idx_2001_2016_this_month]))/sd(psl_azores_spavg[idx_2001_2016_this_month])
 }
 
 # get SLP difference
 nao_monthly <- psl_azores_std - psl_iceland_std
 
 # get winter mean
-nao_proj <- rep(-999, n_year)
+nao_proj <- rep(-99999, n_year)
 for (y in 1:n_year) {
   nao_proj[y] <- mean(nao_monthly[(y-1)*12 + 12:14])  # DJF
 #  nao_proj[y] <- mean(nao_monthly[(y-1)*12 + 12:15])  # DJFM
 #  nao_proj[y] <- mean(nao_monthly[(y-1)*12 + 1:12])   # annual
 }
+time_proj <- 1850:2099 # years of projection; data point DJF avg for year Y has Dec in year Y
 
-time_proj <- 2001:2099
+# normalize to first 20 years of storm surge data
+ibeg <- which(time_proj==years[1])
+iend <- which(time_proj==years[20])
+nao_proj <- nao_proj - mean(nao_proj[ibeg:iend])
 
 # paste together with the nao (historical)
 ibeg <- which(time_proj==(max(nao[,1])+1))

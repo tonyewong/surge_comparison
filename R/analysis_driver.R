@@ -40,7 +40,10 @@ if(Sys.info()['user']=='tony') {
   setwd('~/work/codes/surge_comparison/R')
 }
 
-## Set up. Make sure consistent with the
+## Set up.
+model_choices_selection <- "xistat"  # Which model choices are permitted? Valid values:  "all", "xistat", "onenonstat"
+
+## Make sure consistent with the files your calibration output, or that you are using
 today=Sys.Date(); today=format(today,format="%d%b%Y")
 filename_covariates <- "../input_data/covariates_22Mar2020.rds"
 filename_calibdata_gev  <- "../input_data/processeddata_gev_22Mar2020.rds"
@@ -104,6 +107,19 @@ panel_labels <- c(expression(bold('a')),expression(bold('b')),expression(bold('c
 
 
 ##==============================================================================
+## All models, or xi stationary, or only 1 parameter nonstationary?
+model_choices_selection <- "xistat"  # Which model choices are permitted? Valid values:  "all", "xistat", "onenonstat"
+if (model_choices_selection=="all") {
+  model_choices <- c(1,2,3,4,5,6,7,8) # all models 
+} else if (model_choices_selection=="xistat") {
+  model_choices <- c(1,2,3,5) # restrict xi to be stationary
+} else if (model_choices_selection=="onenonstat") {
+  model_choices <- c(1,2,3,4) # restrict to only 1 nonstationary parameter
+}
+##==============================================================================
+
+
+##==============================================================================
 ## Compare model choices based on
 ## covariate and amount of available data
 ##============================
@@ -119,7 +135,6 @@ for (dl in 1:2) {
     best_models_all[[gg]] <- vector("list", length(metrics)); names(best_models_all[[gg]]) <- names(metrics) # yes, doing this multiple times
   }
 }
-model_choices <- c(1,2,3,4,5,6,7,8)
 covariate_labels <- c("Time","Temp","Sea level","NAO","Stat") # needs to be in the same order as the second dimension of the `metrics` array: [1] "time" "temp" "sealevel" "nao"
 covariate_breaks <- sort(c(seq(from=0.75, to=4.75, by=1), seq(from=1.25, to=5.25, by=1)))
 covariate_breaks_short <- sort(c(seq(from=0.75, to=4.75, by=1), seq(from=1.001, to=5.001, by=1)))
@@ -143,7 +158,7 @@ for (metric in names(metrics)) {
       best_models_all[[gg]][[metric]][dd] <- idx_row
       if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_row} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_row}
     }
-    hist(best_models_all[[gg]][[metric]], breaks=covariate_breaks, freq=TRUE, xlim=c(0.5,5.5), ylim=c(0,25), main="", lty=5, xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    hist(best_models_all[[gg]][[metric]], breaks=covariate_breaks, freq=TRUE, xlim=c(0.5,5.5), ylim=c(0,25), main="", lty=5, xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
     grid()
     hist(best_models_datlen$short[[gg]][[metric]], breaks=covariate_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     hist(best_models_datlen$long[[gg]][[metric]], breaks=covariate_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
@@ -181,7 +196,7 @@ for (gg in names_evm) {
       best_models_all[[gg]][[metric]][dd] <- idx_row
       if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_row} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_row}
     }
-    hist(best_models_all[[gg]][[metric]], breaks=covariate_breaks, freq=TRUE, xlim=c(0.5,5.5), ylim=c(0,25), main="", lty=5, xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    hist(best_models_all[[gg]][[metric]], breaks=covariate_breaks, freq=TRUE, xlim=c(0.5,5.5), ylim=c(0,25), main="", lty=5, xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
     grid()
     hist(best_models_datlen$short[[gg]][[metric]], breaks=covariate_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     hist(best_models_datlen$long[[gg]][[metric]], breaks=covariate_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,5.5), ylim=c(0,15), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
@@ -220,7 +235,6 @@ for (dl in 1:2) {
     best_models_all[[gg]] <- vector("list", length(metrics)); names(best_models_all[[gg]]) <- names(metrics)
   }
 }
-model_choices <- c(1,2,3,4,5,6,7,8)
 model_labels <- vector('list', 2); names(model_labels) <- names_evm
 model_labels$gev <- c("none",expression(mu),expression(sigma),expression(xi),expression(mu * ', ' * sigma),expression(mu * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * mu * ', ' * sigma * ', ' * xi))
 model_labels$gpd <- c("none",expression(lambda),expression(sigma),expression(xi),expression(lambda * ', ' * sigma),expression(lambda * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * lambda * ', ' * sigma * ', ' * xi))
@@ -229,28 +243,28 @@ model_breaks_long <- sort(c(seq(from=0.999, to=7.999, by=1), seq(from=1.4, to=8.
 model_breaks <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.4, to=8.4, by=1)))
 
 pdf('../figures/model_choice.pdf', width=6, height=8, pointsize=11, colormodel='cmyk')
-par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
+par(mfrow=c(4,2), mai=c(.5,.5,.2,.1))
 label_cnt <- 1
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_datlen$short[[gg]][[metric]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]][[metric]]) <- site_names[idx_short]
     best_models_datlen$long[[gg]][[metric]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]][[metric]]) <- site_names[idx_long]
     for (dd in site_names) { # yeah, redoing this...
-        mat <- metrics[[metric]][[gg]][dd,,model_choices]
-        idx_min <- which.min(mat)
-        idx_row <- idx_min%%nrow(mat)
-        if(idx_row==0) {idx_row <- nrow(mat)}
-        idx_col <- which.min(as.vector(mat[idx_row,]))
-        best_models_all[[gg]][[metric]][dd] <- idx_col
-        if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_col} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_col}
+      mat <- metrics[[metric]][[gg]][dd,,model_choices]
+      idx_min <- which.min(mat)
+      idx_row <- idx_min%%nrow(mat)
+      if(idx_row==0) {idx_row <- nrow(mat)}
+      idx_col <- which.min(as.vector(mat[idx_row,]))
+      best_models_all[[gg]][[metric]][dd] <- idx_col
+      if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_col} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_col}
     }
-    hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,26), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,36), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
     grid()
     hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    if (label_cnt==1) {legend(0.6,25,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-    axis(1, at=1:8, labels=model_labels[[gg]])
-    axis(2, at=seq(from=0,to=30,by=5), labels=seq(from=0,to=30,by=5), las=1)
+    if (label_cnt==1) {legend(0.6,35,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+    axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
+    axis(2, at=seq(from=0,to=36,by=5), labels=seq(from=0,to=36,by=5), las=1)
     mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
     mtext(side=2, text="# stations", line=2.3, cex=0.85)
     mtext(side=3, text=metric, cex=0.85)
@@ -281,7 +295,6 @@ for (cc in names_covariates) {
       best_models_all[[gg]] <- vector("list", length(metrics)); names(best_models_all[[gg]]) <- names(metrics)
     }
   }
-  model_choices <- c(1,2,3,4,5,6,7,8)
   model_labels <- vector('list', 2); names(model_labels) <- names_evm
   model_labels$gev <- c("none",expression(mu),expression(sigma),expression(xi),expression(mu * ', ' * sigma),expression(mu * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * mu * ', ' * sigma * ', ' * xi))
   model_labels$gpd <- c("none",expression(lambda),expression(sigma),expression(xi),expression(lambda * ', ' * sigma),expression(lambda * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * lambda * ', ' * sigma * ', ' * xi))
@@ -290,7 +303,7 @@ for (cc in names_covariates) {
   model_breaks <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.4, to=8.4, by=1)))
 
   pdf(paste('../figures/model_choice_',cc,'.pdf',sep=''), width=6, height=8, pointsize=11, colormodel='cmyk')
-  par(mfrow=c(4,2), mai=c(.5,.45,.2,.08))
+  par(mfrow=c(4,2), mai=c(.5,.5,.2,.1))
   label_cnt <- 1
   for (metric in names(metrics)) {
     for (gg in names_evm) {
@@ -303,12 +316,12 @@ for (cc in names_covariates) {
         best_models_all[[gg]][[metric]][dd] <- idx_col
         if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][[metric]][dd] <- idx_col} else {best_models_datlen$long[[gg]][[metric]][dd] <- idx_col}
       }
-      hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, xlim=c(0.5,8.5), lty=5, ylim=c(0,35), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+      hist(best_models_all[[gg]][[metric]], breaks=model_breaks, freq=TRUE, xlim=c(0.5,length(model_choices)+.5), lty=5, ylim=c(0,35), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
       grid()
       hist(best_models_datlen$short[[gg]][[metric]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       hist(best_models_datlen$long[[gg]][[metric]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,17), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       if (label_cnt==1) {legend(0.6,34,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-      axis(1, at=1:8, labels=model_labels[[gg]])
+      axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
       axis(2, at=seq(from=0,to=35,by=5), labels=seq(from=0,to=35,by=5), las=1)
       mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
       mtext(side=2, text="# stations", line=2.3, cex=0.85)
@@ -329,10 +342,9 @@ for (cc in names_covariates) {
 ## NB: this version uses one covariate at a time - loops over them.
 ##============================
 
-ymaxs <- c(30,20,33,35); names(ymaxs) <- names(metrics)
+ymaxs <- c(35,35,35,35); names(ymaxs) <- names(metrics)
 
 for (metric in names(metrics)) {
-  model_choices <- c(1,2,3,4,5,6,7,8)
   model_labels <- vector('list', 2); names(model_labels) <- names_evm
   model_labels$gev <- c("none",expression(mu),expression(sigma),expression(xi),expression(mu * ', ' * sigma),expression(mu * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * mu * ', ' * sigma * ', ' * xi))
   model_labels$gpd <- c("none",expression(lambda),expression(sigma),expression(xi),expression(lambda * ', ' * sigma),expression(lambda * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * lambda * ', ' * sigma * ', ' * xi))
@@ -360,12 +372,12 @@ for (metric in names(metrics)) {
         best_models_datlen$all[[gg]][dd] <- idx_col
         if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
     }
-    hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
     grid()
     hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    if (label_cnt==1) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-    axis(1, at=1:8, labels=model_labels[[gg]])
+    if (label_cnt==1) {legend(0.6,ymaxs[metric]+1,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+    axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
     axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
     mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
     mtext(side=2, text="# stations", line=2.3, cex=0.85)
@@ -385,16 +397,79 @@ for (metric in names(metrics)) {
         best_models_datlen$all[[gg]][dd] <- idx_col
         if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
       }
-      hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+      hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
       grid()
       hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       if (label_cnt==1) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-      axis(1, at=1:8, labels=model_labels[[gg]])
+      axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
       axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
       mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
       mtext(side=2, text="# stations", line=2.3, cex=0.85)
       if (gg=="gev") {mtext(side=2, text=covariate_labels[match(cc,names_covariates)], line=4, cex=0.85)}
+      mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
+    }
+  }
+  dev.off()
+}
+
+
+##==========================================================================
+## same, but horizontal orientation
+##
+ymaxs <- c(35,35,35,35); names(ymaxs) <- names(metrics)
+
+for (metric in names(metrics)) {
+  model_labels <- vector('list', 2); names(model_labels) <- names_evm
+  model_labels$gev <- c("none",expression(mu),expression(sigma),expression(xi),expression(mu * ', ' * sigma),expression(mu * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * mu * ', ' * sigma * ', ' * xi))
+  model_labels$gpd <- c("none",expression(lambda),expression(sigma),expression(xi),expression(lambda * ', ' * sigma),expression(lambda * ', ' * xi),expression(sigma * ', ' * xi),expression(' ' * lambda * ', ' * sigma * ', ' * xi))
+  model_breaks_short <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.001, to=8.001, by=1)))
+  model_breaks_long <- sort(c(seq(from=0.999, to=7.999, by=1), seq(from=1.4, to=8.4, by=1)))
+  model_breaks <- sort(c(seq(from=0.6, to=7.6, by=1), seq(from=1.4, to=8.4, by=1)))
+  
+  pdf(paste('../figures/model_choice_',metric,'_h.pdf', sep=''), width=7.5, height=3.5, pointsize=11, colormodel='cmyk')
+  par(mfrow=c(2,4), mai=c(.45,.45,.15,.1))
+  label_cnt <- 1
+  
+  # first, do the pooled one
+  best_models_datlen <- vector("list", 3); names(best_models_datlen) <- c("short", "long", "all")
+  for (dl in 1:3) {best_models_datlen[[dl]] <- vector("list", length(names_evm)); names(best_models_datlen[[dl]]) <- names_evm}
+  for (gg in names_evm) {
+    best_models_datlen$short[[gg]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]]) <- site_names[idx_short]
+    best_models_datlen$long[[gg]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]]) <- site_names[idx_long]
+    best_models_datlen$all[[gg]] <- rep(NA, nsite); names(best_models_datlen$all[[gg]]) <- site_names
+    for (dd in site_names) {
+      mat <- metrics[[metric]][[gg]][dd,,model_choices]
+      idx_min <- which.min(mat)
+      idx_row <- idx_min%%nrow(mat)
+      if(idx_row==0) {idx_row <- nrow(mat)}
+      idx_col <- which.min(as.vector(mat[idx_row,]))
+      best_models_datlen$all[[gg]][dd] <- idx_col
+      if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
+    }
+  }
+  # cycle through all the covariates
+  for (gg in names_evm) {
+    for (cc in names_covariates) {
+      best_models_datlen$short[[gg]] <- rep(NA, length(idx_short)); names(best_models_datlen$short[[gg]]) <- site_names[idx_short]
+      best_models_datlen$long[[gg]] <- rep(NA, length(idx_long)); names(best_models_datlen$long[[gg]]) <- site_names[idx_long]
+      best_models_datlen$all[[gg]] <- rep(NA, nsite); names(best_models_datlen$all[[gg]]) <- site_names
+      for (dd in site_names) {
+        mat <- metrics[[metric]][[gg]][dd,cc,model_choices]
+        idx_col <- which.min(mat)
+        best_models_datlen$all[[gg]][dd] <- idx_col
+        if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
+      }
+      hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
+      grid()
+      hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      if (label_cnt==5) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+      axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
+      axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
+      if (label_cnt%%4==1) {mtext(side=2, text="# stations", line=2.3, cex=0.85)}
+      if (gg=="gev") {mtext(side=3, text=covariate_labels[match(cc,names_covariates)], line=.25, cex=0.85)}
+      if (gg=="gpd") {mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)}
       mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
     }
   }
@@ -417,7 +492,6 @@ lons <- site_dat[,"lon"]
 
 best_models_map <- vector("list", 2); names(best_models_map) <- names_evm
 for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics)); names(best_models_map[[gg]]) <- names(metrics)}
-model_choices <- c(1,2,3,4,5,6,7,8)
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_map[[gg]][[metric]] <- vector('list', 2); names(best_models_map[[gg]][[metric]]) <- c('covar','model')
@@ -528,9 +602,9 @@ for (gg in names_evm) {for (cc in 1:5) print(paste(gg,covariate_labels[cc],lengt
 ##==============================================================================
 
 # revisit model choices, but eliminate all with xi nonstationary
+# TW note:  this is now the default. can just delete this?
 best_models_map <- vector("list", 2); names(best_models_map) <- names_evm
 for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics)); names(best_models_map[[gg]]) <- names(metrics)}
-model_choices <- c(1,2,3,5) # eliminate any xi-nonstationary choices
 for (metric in names(metrics)) {
   for (gg in names_evm) {
     best_models_map[[gg]][[metric]] <- vector('list', 2); names(best_models_map[[gg]][[metric]]) <- c('covar','model')

@@ -1,4 +1,5 @@
 # Other
+/input_data/cesm/*
 *.nc
 /output/*
 *DS_Store

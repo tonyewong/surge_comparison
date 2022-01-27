@@ -247,12 +247,24 @@ for (metric in names(metrics)) {
         best_models_datlen$all[[gg]][dd] <- idx_col
         if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
     }
-    hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    # hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+    # grid()
+    # hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    # hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+    # if (label_cnt==1) {legend(5,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+    # axis(1, at=1:8, labels=model_labels[[gg]])
+    # axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
+    # mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
+    # mtext(side=2, text="# stations", line=2.3, cex=0.85)
+    # if (gg=="gev") {mtext(side=2, text="All covariates", line=4, cex=0.85)}
+    # if(gg=="gev") {mtext(side=3, text="GEV", line=.6, cex=0.85)} else {mtext(side=3, text="GPD", line=.6, cex=0.85)}
+    # mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
+    hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
     grid()
     hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
     hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-    if (label_cnt==1) {legend(5,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-    axis(1, at=1:8, labels=model_labels[[gg]])
+    if (label_cnt==1) {legend(0.6,ymaxs[metric]+1,c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+    axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
     axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
     mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
     mtext(side=2, text="# stations", line=2.3, cex=0.85)
@@ -272,12 +284,23 @@ for (metric in names(metrics)) {
         best_models_datlen$all[[gg]][dd] <- idx_col
         if (dd %in% names(idx_short)) {best_models_datlen$short[[gg]][dd] <- idx_col} else {best_models_datlen$long[[gg]][dd] <- idx_col}
       }
-      hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+      # hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,8.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i')
+      # grid()
+      # hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      # hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
+      # if (label_cnt==1) {legend(5,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+      # axis(1, at=1:8, labels=model_labels[[gg]])
+      # axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
+      # mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
+      # mtext(side=2, text="# stations", line=2.3, cex=0.85)
+      # if (gg=="gev") {mtext(side=2, text=covariate_labels[match(cc,names_covariates)], line=4, cex=0.85)}
+      # mtext(side=3, text=panel_labels[label_cnt], cex=0.85, adj=0); label_cnt <- label_cnt + 1
+      hist(best_models_datlen$all[[gg]], breaks=model_breaks, freq=TRUE, lty=5, xlim=c(0.5,length(model_choices)+.5), ylim=c(0,ymaxs[metric]), main="", xaxt='n', yaxt='n', xlab='', ylab='', xaxs='i', col="white")
       grid()
       hist(best_models_datlen$short[[gg]], breaks=model_breaks_short, freq=TRUE, col="gray80", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
       hist(best_models_datlen$long[[gg]], breaks=model_breaks_long, freq=TRUE, col="gray30", xlim=c(0.5,8.5), ylim=c(0,30), main="", xaxt='n', yaxt='n', xlab='', ylab='', add=TRUE)
-      if (label_cnt==1) {legend(5,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
-      axis(1, at=1:8, labels=model_labels[[gg]])
+      if (label_cnt==1) {legend(0.6,ymaxs[metric],c("< 55 years","> 55 years","combined"),pch=c(15,15,NA),lty=c(NA,NA,5),col=c("gray80","gray30","black"),pt.cex=2,bty='n')}
+      axis(1, at=1:length(model_choices), labels=model_labels[[gg]][model_choices])
       axis(2, at=seq(from=0,to=ymaxs[metric],by=5), labels=seq(from=0,to=ymaxs[metric],by=5), las=1)
       mtext(side=1, text="Nonstationary parameters", line=2.3, cex=0.85)
       mtext(side=2, text="# stations", line=2.3, cex=0.85)
