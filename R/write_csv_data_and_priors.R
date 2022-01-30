@@ -28,13 +28,13 @@ names(filename.processeddata) <- names(filename.priors.normalgamma) <- names(fil
 # set the file names that you used
 filename.processeddata$gev <- "../input_data/processeddata_gev_22Mar2020.rds"
 filename.processeddata$gpd <- "../input_data/processeddata_gpd_23Mar2020.rds"
-filename.priors$normalgamma$gev <- "../input_data/surge_priors_normalgamma_gev_15May2020.rds"
-filename.priors$normalgamma$gpd <- "../input_data/surge_priors_normalgamma_gpd_15May2020.rds"
-filename.priors$uniform$gev <- "../input_data/surge_priors_uniform_gev_15May2020.rds"
-filename.priors$uniform$gpd <- "../input_data/surge_priors_uniform_gpd_15May2020.rds"
+filename.priors$normalgamma$gev <- "../input_data/surge_priors_normalgamma_gev_27Jan2022.rds"
+filename.priors$normalgamma$gpd <- "../input_data/surge_priors_normalgamma_gpd_28Jan2022.rds"
+filename.priors$uniform$gev <- "../input_data/surge_priors_uniform_gev_27Jan2022.rds"
+filename.priors$uniform$gpd <- "../input_data/surge_priors_uniform_gpd_28Jan2022.rds"
 
 # read the covariates
-filename.covariates <- "../input_data/covariates_22Mar2020.rds"
+filename.covariates <- "../input_data/covariates_27Jan2022.rds"
 covariates <- readRDS(filename.covariates)
 
 # read the processed calibration data

@@ -55,7 +55,7 @@ if(Sys.info()['user']=='tony') {
 ##==============================================================================
 ## Helpers and set up
 
-calib_post <- TRUE
+calib_post <- FALSE
 do_data_processing <- FALSE
 do_fit_priors <- FALSE
 min_years <- 15 # minimum number of years for using a tide gauge site
@@ -88,7 +88,7 @@ if (do_data_processing) {
   # read tide gauge data and covariates, fit previously
   data_gev <- readRDS("../input_data/processeddata_gev_22Mar2020.rds")
   data_gpd <- readRDS("../input_data/processeddata_gpd_23Mar2020.rds")
-  covariates <- readRDS("../input_data/covariates_22Mar2020.rds")
+  covariates <- readRDS("../input_data/covariates_27Jan2022.rds")
 }
 site_names <- names(data_gev)
 names_covariates <- colnames(covariates)[2:ncol(covariates)]
@@ -104,8 +104,8 @@ if (do_fit_priors) {
 } else {
   # read priors, fit previously
   priors <- vector("list", 2); names(priors) <- c("gev","gpd")
-  priors$gev <- readRDS("../input_data/surge_priors_normalgamma_gev_15May2020.rds")
-  priors$gpd <- readRDS("../input_data/surge_priors_normalgamma_gpd_15May2020.rds")
+  priors$gev <- readRDS("../input_data/surge_priors_normalgamma_gev_27Jan2022.rds")
+  priors$gpd <- readRDS("../input_data/surge_priors_normalgamma_gpd_28Jan2022.rds")
 }
 ##==============================================================================
 

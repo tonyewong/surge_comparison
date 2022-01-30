@@ -33,10 +33,10 @@ source("parameter_setup_gev.R")
 source("parameter_setup_gpd.R")
 
 # set the file names that you used
-filename.optim$nll$gev <- "../output/optim_gev_like_22Mar2020.rds"
-filename.optim$nll$gpd <- "../output/optim_gpd_like_23Mar2020.rds"
-filename.optim$nps$gev <- "../output/optim_gev_post_15May2020.rds"
-filename.optim$nps$gpd <- "../output/optim_gpd_post_15May2020.rds"
+filename.optim$nll$gev <- "../output/optim_gev_like_28Jan2022.rds"
+filename.optim$nll$gpd <- "../output/optim_gpd_like_28Jan2022.rds"
+filename.optim$nps$gev <- "../output/optim_gev_post_28Jan2022.rds"
+filename.optim$nps$gpd <- "../output/optim_gpd_post_28Jan2022.rds"
 
 # read the calibration output
 for (metric in names(parameters)) {

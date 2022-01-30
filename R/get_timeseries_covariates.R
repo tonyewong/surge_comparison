@@ -21,6 +21,7 @@
 
 
 library(ncdf4)
+library(abind)
 
 
 # check the GEV data sets (annual block maxima) to see what years we need the

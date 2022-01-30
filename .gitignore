@@ -1,4 +1,7 @@
 # Other
+cesm.zip
+*__MACOSX
+/figures/*
 /input_data/cesm/*
 *.nc
 /output/*

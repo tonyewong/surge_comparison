@@ -513,9 +513,9 @@ print('...done.')
 
 # rds -> save single object; the only one we need is 'priors'
 today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gpd_',today,'.rds', sep='')
-filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gpd_',today,'.rds', sep='')
-filename.mles <- paste(output.dir,'surge_MLEs_gpd_',today,'.rds', sep='')
+filename.priors.normalgamma <- paste(output.dir,'surge_priors_normalgamma_gev_',today,'.rds', sep='')
+filename.priors.uniform <- paste(output.dir,'surge_priors_uniform_gev_',today,'.rds', sep='')
+filename.mles <- paste(output.dir,'surge_MLEs_gev_',today,'.rds', sep='')
 
 print(paste('saving priors and DE optim output as .rds files to read and use later...',sep=''))
 

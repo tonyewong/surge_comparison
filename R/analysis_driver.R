@@ -45,15 +45,15 @@ model_choices_selection <- "xistat"  # Which model choices are permitted? Valid 
 
 ## Make sure consistent with the files your calibration output, or that you are using
 today=Sys.Date(); today=format(today,format="%d%b%Y")
-filename_covariates <- "../input_data/covariates_22Mar2020.rds"
+filename_covariates <- "../input_data/covariates_27Jan2022.rds"
 filename_calibdata_gev  <- "../input_data/processeddata_gev_22Mar2020.rds"
 filename_calibdata_gpd  <- "../input_data/processeddata_gpd_23Mar2020.rds"
 # calibration using likelihood:
-filename_maxlike_gev <- "../output/optim_gev_like_22Mar2020.rds"
-filename_maxlike_gpd <- "../output/optim_gpd_like_23Mar2020.rds"
+filename_maxlike_gev <- "../output/optim_gev_like_28Jan2022.rds"
+filename_maxlike_gpd <- "../output/optim_gpd_like_28Jan2022.rds"
 # calibration using posterior (score):
-filename_maxpost_gev <- "../output/optim_gev_post_15May2020.rds"
-filename_maxpost_gpd <- "../output/optim_gpd_post_15May2020.rds"
+filename_maxpost_gev <- "../output/optim_gev_post_28Jan2022.rds"
+filename_maxpost_gpd <- "../output/optim_gpd_post_28Jan2022.rds"
 names_evm <- c("gev", "gpd")
 n_evm <- length(names_evm)
 

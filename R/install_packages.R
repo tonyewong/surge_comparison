@@ -30,23 +30,6 @@ install.packages("xlsx")
 install.packages("plot3D")
 install.packages("maps")
 
-# data - temperature projections
-local <- "../input_data/global.tas.aann.CNRM-CM5.historical+rcp85.r1i1p1.18500101-21001231.nc"
-remote <- "https://drive.google.com/u/1/uc?id=18b91t463kHr-bpuWR0CTWcHVuQt_DhMp&export=download"
-download.file(remote, local)
-
-# WARNING! These two might take a while depending on your internet speed.
-
-# data - sea-level projections
-local <- "../input_data/BRICK_GMSL_WongKeller2017.nc"
-remote <- "https://drive.google.com/u/1/uc?id=1iU32zKuz_UV0QEVOf2ZbX8sdXMNOc3LH&export=download"
-download.file(remote, local)
-
-# data - sea-level pressure projections
-local <- "../input_data/DMIEH5_SRA1B_4_MM_psl.1-1200.nc"
-remote <- "https://drive.google.com/u/1/uc?id=1M74VXYA2j-BLMXOU9npPs_bBRTe4p6sE&export=download"
-download.file(remote, local)
-
 ##==============================================================================
 ## End
 ##==============================================================================

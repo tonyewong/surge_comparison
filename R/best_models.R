@@ -153,7 +153,7 @@ for (gg in names_evm) {
 ##==============================
 
 # `today` set in `analysis_driver.R` before calling this script
-save(list=c("nll","aic","bic","nps"), file=paste("../output/comparison_metrics_",today,".RData"))
+save(list=c("nll","aic","bic","nps"), file=paste("../output/comparison_metrics_",today,".RData", sep=""))
 ##==============================================================================
 
 
