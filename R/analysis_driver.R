@@ -973,5 +973,20 @@ source("plots_one_parameter_models.R")
 
 
 ##==============================================================================
+## Plot old (ECHAM, CMIP5) vs new (CESM2, CMIP6) NAO indices (normalized)
+
+pdf(paste("../figures/nao_comparison.pdf", sep=""), width=5, height=3.5, pointsize=11, colormodel='cmyk')
+par(mfrow=c(1,1), mai=c(.8,.8,.22,.15), las=1)
+covariates_new <- readRDS("../input_data/covariates_27Jan2022.rds")
+covariates_old <- readRDS("../input_data/covariates_22Mar2020.rds")
+plot(covariates_old[,c(1,5)], pch=16, col=rgb(0,0,1,0.7),ylim=c(-0.3,2), xlab="Year", ylab="DJF mean NAO index (normalized)")
+points(covariates_new[,c(1,5)], pch=17, col=rgb(1,0,0,0.35))
+legend(1890,2,c("ECHAM5 (CMIP5)","CESM2 (CMIP6)"), pch=c(16,17), col=c(rgb(0,0,1,0.7), rgb(1,0,0,0.35)), bty='n')
+dev.off()
+##==============================================================================
+
+
+
+##==============================================================================
 ## End
 ##==============================================================================
