@@ -11,25 +11,30 @@ originals in Wong et al. (2020; in review), but can give you a sense of what is 
 
 ## Related to the covariate forcing time series
 
-* `covariates_22Mar2020.rds` - historical and future projections covariates for forcing the nonstationary models
+* `covariates_27Jan2022.rds` - historical and future projections covariates for forcing the nonstationary models
 * `GMSL_ChurchWhite2011_yr_2015.txt` - global mean sea level historical data from [Church and White (2013; doi: 10.1007/s10712-011-9119-1)](https://link.springer.com/article/10.1007/s10712-011-9119-1)
 * `nao_3dp.dat` - winter mean NAO index historical data from [Jones et al. (1997)](https://doi.org/10.1002/(SICI)1097-0088(19971115)17:13%3C1433::AID-JOC203%3E3.0.CO;2-P)
 * `noaa_temperature_1880-2017.csv` - global mean surface temperature historical data from [National Centers for Environmental Information data portal](http://www.ncdc.noaa.gov/cag/)
-
-The following three files must be downloaded using the commands in `R/install_packages.R` (if you do not have these files already). All of the other files should be in the Github repository already. If you downloaded the zipped folder from Zenodo, they will be in there.
 * `BRICK_GMSL_WongKeller2017.nc` - global mean sea level projections from [Wong and Keller (2017; doi: 10.1002/2017EF000607)](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2017EF000607)
-* `DMIEH5_SRA1B_4_MM_psl.1-1200.nc` - sea-level pressure projection from [MPI-ECHAM5](http://www.mpimet.mpg.de/fileadmin/models/echam/mpi_report_349.pdf)
-* `global.tas.aann.CNRM-CM5.historical+rcp85.r1i1p1.18500101-21001231.nc` - global mean surface temperature projection from the [CNRM-CM5 simulation (member 1) under Representative Concentration Pathway 8.5 (RCP8.5)](http://cmip-pcmdi.llnl.gov/cmip5/)
+
+The following files must be downloaded either using one of the CMIP6 data portals (e.g., https://esgf-node.llnl.gov/search/cmip6/ or https://cds.climate.copernicus.eu/cdsapp#!/dataset/projections-cmip6?tab=form) or by downloading the zipped folder from Zenodo.
+* `areacella_fx_CESM2_ssp585_r4i1p1f1_gn_v20200528.nc` - areas of the CESM2 (from CMIP6 multi-model ensemble) gridcells
+* `ts_Amon_CESM2_historical_r1i1p1f1_gn_185001-201412_v20190308.nc` - historical surface temperature (1850-2014) from CESM2
+* `ts_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412_v20200528.nc` - surface temperature projection (2015-2064) from CESM2 under SSP5-8.5 scenario
+* `ts_Amon_CESM2_ssp585_r4i1p1f1_gn_206501-210012_v20200528.nc` - surface temperature projection (2065-2100) from CESM2 under SSP5-8.5 scenario
+* `psl_Amon_CESM2_historical_r1i1p1f1_gn_185001-201412_v20190308.nc` - historical sea level pressure (1850-2014) from CESM2
+* `psl_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412_v20200528.nc` - sea level pressure projection (2015-2064) from CESM2 under SSP5-8.5 scenario
+* `psl_Amon_CESM2_ssp585_r4i1p1f1_gn_206501-210012_v20200528.nc` - sea level pressure projection (2065-2100) from CESM2 under SSP5-8.5 scenario
 
 ## Related to fitting prior distributions for the model parameters
 
 * `tidegauge_processed_manystations_decl3-pot99-annual_10Dec2017.rds` - this one is a head start on fitting prior distributions, because previous work ([Wong et al., 2018](https://doi.org/10.1088/1748-9326/aacb3d)) used this set of 28 tide gauge stations with long data records to fit priors. This RDS file contains the annual block maxima (`gev_year` element on the lists) and peaks-over-thresholds data (`gpd` list elements) for each site.
-* `surge_MLEs_gev_15May2020.rds` - maximum likelihood parameter estimates for all of the GEV model structures for the set of long-record tide gauge stations around the world
-* `surge_MLEs_gpd_15May2020.rds` - maximum likelihood parameter estimates for all of the GPD model structures for the set of long-record tide gauge stations around the world
-* `surge_priors_uniform_gev_15May2020.rds` - uniform prior distributions fit for the GEV model parameters. Different priors are fit for each of the different types of model (so, for example, just because $\mu_0$ has prior $\pi(\mu_0)$ for one model structure, and that parameter is in another model structure, the prior distribution is not necessarily also $\pi$ in the second model). The same is true for the other prior distribution files too.
-* `surge_priors_uniform_gpd_15May2020.rds` - uniform prior distributions fit for the GPD model parameters
-* `surge_priors_normalgamma_gev_15May2020.rds` - normal and gamma prior distributions for the GEV model parameters
-* `surge_priors_normalgamma_gpd_15May2020.rds` - normal and gamma prior distributions for the GPD model parameters
+* `surge_MLEs_gev_27Jan2022.rds` - maximum likelihood parameter estimates for all of the GEV model structures for the set of long-record tide gauge stations around the world
+* `surge_MLEs_gpd_28Jan2022.rds` - maximum likelihood parameter estimates for all of the GPD model structures for the set of long-record tide gauge stations around the world
+* `surge_priors_uniform_gev_27Jan2022.rds` - uniform prior distributions fit for the GEV model parameters. Different priors are fit for each of the different types of model (so, for example, just because $\mu_0$ has prior $\pi(\mu_0)$ for one model structure, and that parameter is in another model structure, the prior distribution is not necessarily also $\pi$ in the second model). The same is true for the other prior distribution files too.
+* `surge_priors_uniform_gpd_28Jan2022.rds` - uniform prior distributions fit for the GPD model parameters
+* `surge_priors_normalgamma_gev_27Jan2022.rds` - normal and gamma prior distributions for the GEV model parameters
+* `surge_priors_normalgamma_gpd_28Jan2022.rds` - normal and gamma prior distributions for the GPD model parameters
 
 ## Related to the final processed data sets, which serve as input to the calibration
 

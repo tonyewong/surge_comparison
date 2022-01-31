@@ -3,12 +3,12 @@
 Output files from the calibration and projections. The date-stamps on the files given below are from the
 originals in Wong et al. (2020; in review), but can give you a sense of what is in each of them.
 
-* `returnlevels_05Jun2020.RData` - return level and return period projections for all of the sites, for all of the covariates and for all of the candidate model structures (8 each of GEV and GPD)
-* `comparison_metrics_05Jun2020.RData` - contain the goodness-of-fit metrics for comparing the performance of the alternative models (AIC, BIC, negative log-likelihood and negative log-posterior score)
-* `optim_gpd_like_23Mar2020` - differential evolution optimization output for GPD models, to optimize based on the negative log-likelihood
-* `optim_gpd_post_15May2020` - differential evolution optimization output for GPD models, to optimize based on the negative log-posterior score
-* `optim_gev_like_22Mar2020` - differential evolution optimization output for GEV models, to optimize based on the negative log-likelihood
-* `optim_gev_post_15May2020` - differential evolution optimization output for GEV models, to optimize based on the negative log-posterior score
+* `returnlevels_31Jan2022.RData` - return level and return period projections for all of the sites, for all of the covariates and for all of the candidate model structures (8 each of GEV and GPD)
+* `comparison_metrics_31Jan2022.RData` - contain the goodness-of-fit metrics for comparing the performance of the alternative models (AIC, BIC, negative log-likelihood and negative log-posterior score)
+* `optim_gpd_like_28Jan2022` - differential evolution optimization output for GPD models, to optimize based on the negative log-likelihood
+* `optim_gpd_post_28Jan2022` - differential evolution optimization output for GPD models, to optimize based on the negative log-posterior score
+* `optim_gev_like_28Jan2022` - differential evolution optimization output for GEV models, to optimize based on the negative log-likelihood
+* `optim_gev_post_28Jan2022` - differential evolution optimization output for GEV models, to optimize based on the negative log-posterior score
 
 ## Copyright
 

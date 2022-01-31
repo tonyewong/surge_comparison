@@ -49,8 +49,8 @@ Note that you must install the needed R packages and the required data sets befo
 
 * time is simply the year
 * global mean sea level is taken from [Wong and Keller (2017; doi: 10.1002/2017EF000607)](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2017EF000607)) for projections and from [Church and White (2013; doi: 10.1007/s10712-011-9119-1)](https://link.springer.com/article/10.1007/s10712-011-9119-1) for hindcast
-* global mean surface temperature is taken from the [National Centers for Environmental Information data portal](http://www.ncdc.noaa.gov/cag/) for hindcast and from the [CNRM-CM5 simulation (member 1) under Representative Concentration Pathway 8.5 (RCP8.5)](http://cmip-pcmdi.llnl.gov/cmip5/) for projections
-* winter mean NAO index is taken from [Jones et al. (1997)](https://doi.org/10.1002/(SICI)1097-0088(19971115)17:13%3C1433::AID-JOC203%3E3.0.CO;2-P) for hindcast and, for projections, is computed from the [MPI-ECHAM5 sea-level pressure projection](http://www.mpimet.mpg.de/fileadmin/models/echam/mpi_report_349.pdf) under the Special Report on Emission Scenarios (SRES) A1B as part of the ENSEMBLES project for projections
+* global mean surface temperature is taken from the [National Centers for Environmental Information data portal](http://www.ncdc.noaa.gov/cag/) for hindcast and from the [CESM2 simulations under historical and SSP5-8.5 forcing](https://cds.climate.copernicus.eu/cdsapp#!/dataset/projections-cmip6?tab=form) for projections
+* winter mean NAO index is taken from [Jones et al. (1997)](https://doi.org/10.1002/(SICI)1097-0088(19971115)17:13%3C1433::AID-JOC203%3E3.0.CO;2-P) for hindcast and, for projections, is computed from the [CESM2 sea-level pressure projection](https://cds.climate.copernicus.eu/cdsapp#!/dataset/projections-cmip6?tab=form) under the SSP5-8.5 scenario for projections
 
 If you want to use your own time series forcing,
 * get it onto an annual mean time scale,
