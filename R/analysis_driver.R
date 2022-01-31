@@ -743,14 +743,11 @@ for (metric in names(metrics)) {
 
 
 ## Numbers for paper:
-# Key West
-metric <- "NPS"; gg <- "gpd"; dd <- "KeyWestFL"
+# Pensacola
+metric <- "NPS"; gg <- "gpd"; dd <- "PensacolaFL"
 cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
-print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,model_choices])))
-# Boston
-metric <- "NPS"; gg <- "gpd"; dd <- "BostonMA"
-cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
-print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,model_choices])))
+print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][1,mm]); 
+print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,model_choices])))
 
 
 
