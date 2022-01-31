@@ -602,7 +602,9 @@ for (gg in names_evm) {for (cc in 1:5) print(paste(gg,covariate_labels[cc],lengt
 ##==============================================================================
 
 # revisit model choices, but eliminate all with xi nonstationary
-# TW note:  this is now the default. can just delete this?
+# TW note:  this is now the default. can just delete this? 
+#           --> leaving here; the code below assumes mm is model index within 1:8 
+#               (all model choices) and not just the `model_choices` set above
 best_models_map <- vector("list", 2); names(best_models_map) <- names_evm
 for (gg in names_evm) {best_models_map[[gg]] <- vector("list", length(metrics)); names(best_models_map[[gg]]) <- names(metrics)}
 for (metric in names(metrics)) {
@@ -621,6 +623,7 @@ for (metric in names(metrics)) {
     }
   }
 }
+# again: the above gives best model in terms of models 1:8
 
 ## calculated return periods and levels are the mean of a 21-year moving window
 ## average, centered on the year in question
@@ -647,20 +650,21 @@ for (gg in names_evm) {
     } else {
       # nonstationary model, use moving average
       rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
-      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
     }
     for (c in names_covariates) {
       rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
       for (yy in present:year) {
         yi2 <- match(yy, years_proj)
         for (m in 1:nmodel) {
-          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)], na.rm=TRUE)
         }
       }
     }
   }
 }
+# the 8 columns of rl_smoothed[[gg]][[dd]][[c]] correspond to the (non)stationary models 1:8
 
 
 ##==============================================================================
@@ -680,15 +684,15 @@ for (metric in names(metrics)) {
     pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
     par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
     for (dd in idx_long) {
-      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
-      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
       plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      for (m in model_choices) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
       lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
@@ -713,15 +717,15 @@ for (metric in names(metrics)) {
     pdf(paste("../figures/projections_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=12, height=13, pointsize=11, colormodel='cmyk')
     par(mfrow=c(7,6), mai=c(.43,.45,.22,.15))
     for (dd in 1:length(site_names)) {
-      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
-      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
       plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      for (m in model_choices) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
       lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
@@ -742,52 +746,12 @@ for (metric in names(metrics)) {
 # Key West
 metric <- "NPS"; gg <- "gpd"; dd <- "KeyWestFL"
 cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
-print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,])))
+print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,model_choices])))
 # Boston
 metric <- "NPS"; gg <- "gpd"; dd <- "BostonMA"
 cc <- best_models_map[[gg]][[metric]]$covar[dd]; mm <- best_models_map[[gg]][[metric]]$model[dd]
-print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,])))
+print(paste(cc, mm)); print(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,mm]); print(diff(range(rl_smoothed[[gg]][[dd]][[cc]][year-present+1,model_choices])))
 
-
-## calculated return periods and levels are the mean of a 21-year moving window
-## average, centered on the year in question
-metric <- "NPS"
-rp_old <- "50"
-present <- 2020
-year <- 2050
-either_side <- 10 # window width is 2*either_side + 1
-yi <- match(year, years_proj)
-rp_new <- rl_old <- rl_new <- rl_smoothed <- vector("list",length(names_evm))
-names(rp_new) <- names(rl_old) <- names(rl_new) <- names(rl_smoothed) <- names_evm
-for (gg in names_evm) {
-  rp_new[[gg]] <- rl_old[[gg]] <- rl_new[[gg]] <- rep(NA, length(site_names)) # needs to be the return periods in the same order as lats and lons
-  rl_smoothed[[gg]] <- vector('list', length(site_names)); names(rl_smoothed[[gg]]) <- site_names
-  for (dd in 1:length(site_names)) {
-    cc <- best_models_map[[gg]][[metric]]$covar[dd]
-    mm <- best_models_map[[gg]][[metric]]$model[dd]
-    rl_smoothed[[gg]][[dd]] <- vector("list", length(names_covariates)); names(rl_smoothed[[gg]][[dd]]) <- names_covariates
-    if (cc==5) {
-      # stationary model, no moving average needed here
-      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[1]][rp_old,mm,match(present,years_proj)] # doesn't matter which covariate you take since it's stationary
-      rp_new[[gg]][dd] <- as.numeric(rp_old)
-      rl_new[[gg]][dd] <- rl_old[[gg]][dd]
-    } else {
-      # nonstationary model, use moving average
-      rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
-      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
-    }
-    for (c in names_covariates) {
-      rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
-      for (yy in present:year) {
-        yi2 <- match(yy, years_proj)
-        for (m in 1:nmodel) {
-          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
-        }
-      }
-    }
-  }
-}
 
 
 ##======================================
@@ -818,15 +782,15 @@ for (gg in names_evm) {
     } else {
       # nonstationary model, use moving average
       rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
-      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
     }
     for (c in names_covariates) {
       rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
       for (yy in present:year) {
         yi2 <- match(yy, years_proj)
         for (m in 1:nmodel) {
-          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)], na.rm=TRUE)
         }
       }
     }
@@ -843,15 +807,15 @@ for (metric in names(metrics)) {
     pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
     par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
     for (dd in idx_long) {
-      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
-      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
       plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      for (m in model_choices) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
       lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
@@ -896,15 +860,15 @@ for (gg in names_evm) {
     } else {
       # nonstationary model, use moving average
       rl_old[[gg]][dd] <- rl[[gg]][[dd]][[cc]][rp_old,mm,match(present,years_proj)]
-      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
-      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)])
+      rp_new[[gg]][dd] <- mean(rp[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
+      rl_new[[gg]][dd] <- mean(rl[[gg]][[dd]][[cc]][rp_old,mm,(yi-either_side):(yi+either_side)], na.rm=TRUE)
     }
     for (c in names_covariates) {
       rl_smoothed[[gg]][[dd]][[c]] <- mat.or.vec(nr=(year-present+1), nc=nmodel)
       for (yy in present:year) {
         yi2 <- match(yy, years_proj)
         for (m in 1:nmodel) {
-          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)])
+          rl_smoothed[[gg]][[dd]][[c]][yy-present+1, m] <- mean(rl[[gg]][[dd]][[c]][rp_old,m,(yi2-either_side):(yi2+either_side)], na.rm=TRUE)
         }
       }
     }
@@ -921,15 +885,15 @@ for (metric in names(metrics)) {
     pdf(paste("../figures/projections_long_rl",rp_old,"_",gg,"_",metric,".pdf", sep=""), width=7.5, height=9, pointsize=11, colormodel='cmyk')
     par(mfrow=c(5,4), mai=c(.43,.45,.22,.15))
     for (dd in idx_long) {
-      ymin <- min(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
-      ymax <- max(rl_smoothed[[gg]][[dd]][[1]], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]], na.rm=TRUE)}
+      ymin <- min(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) < ymin) ymin <- min(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
+      ymax <- max(rl_smoothed[[gg]][[dd]][[1]][,model_choices], na.rm=TRUE); for (c in names_covariates) {if (max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE) > ymax) ymax <- max(rl_smoothed[[gg]][[dd]][[c]][,model_choices], na.rm=TRUE)}
       cc <- best_models_map[[gg]][[metric]]$covar[dd]
       mm <- best_models_map[[gg]][[metric]]$model[dd]
       if (cc==5) {cc <- 1; mm <- 1}
       # actual plots
       plot(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2, type='l', col="black", xaxs='i', xlim=c(2020,year), ylim=c(ymin,ymax), main="", xaxt='n', xlab='', ylab='')
       grid()
-      for (m in 1:nmodel) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
+      for (m in model_choices) {for (c in names_covariates) {lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[c]][,m], lwd=0.5, col=covariate_colors[[match(c,names_covariates)]])}}
       lines(years_proj[yi_present:yi], rl_smoothed[[gg]][[dd]][[cc]][,mm], lwd=2.5, col="black")
       axis(1, at=seq(from=2020, to=year, by=5), labels=rep("",length(seq(from=2020, to=year, by=5))))
       axis(1, at=seq(from=2020, to=year, by=10), labels=seq(from=2020, to=year, by=10))
